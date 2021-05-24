@@ -1,4 +1,4 @@
-"""Demo cisco_meraki addition to Nautobot."""
+"""Demo meraki addition to Nautobot."""
 import logging
 
 from django_rq import job
@@ -6,11 +6,11 @@ from nautobot_chatops.workers import subcommand_of, handle_subcommands
 from nautobot_chatops.choices import CommandStatusChoices
 
 from .utils import (
-    get_meraki_orgs, 
-    get_meraki_org_admins, 
-    meraki_devices, 
-    meraki_get_networks_by_org, 
-    meraki_get_switchports
+    get_meraki_orgs,
+    get_meraki_org_admins,
+    meraki_devices,
+    meraki_get_networks_by_org,
+    meraki_get_switchports,
 )
 
 logger = logging.getLogger("rq.worker")
