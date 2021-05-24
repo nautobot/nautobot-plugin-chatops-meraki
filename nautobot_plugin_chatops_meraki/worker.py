@@ -22,7 +22,7 @@ def meraki(subcommand, **kwargs):
     return handle_subcommands("meraki", subcommand, **kwargs)
 
 
-@subcommand_of("cisco_meraki")
+@subcommand_of("meraki")
 def get_meraki_devices(dispatcher, org_name=None):
     """Gathers devices from Meraki API endpoint."""
     logger.info(f"ORG NAME: {org_name}")
