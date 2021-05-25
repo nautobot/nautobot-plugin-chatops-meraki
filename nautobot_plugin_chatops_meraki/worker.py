@@ -19,10 +19,10 @@ logger = logging.getLogger("rq.worker")
 @job("default")
 def cisco_meraki(subcommand, **kwargs):
     """Interact with Meraki."""
-    return handle_subcommands("meraki", subcommand, **kwargs)
+    return handle_subcommands("cisco_meraki", subcommand, **kwargs)
 
 
-@subcommand_of("meraki")
+@subcommand_of("cisco_meraki")
 def get_meraki_devices(dispatcher, org_name=None):
     """Gathers devices from Meraki API endpoint."""
     logger.info(f"ORG NAME: {org_name}")
@@ -32,7 +32,7 @@ def get_meraki_devices(dispatcher, org_name=None):
 
         # Build the list of sites, each as a pair of (user-visible string, internal value) entries
         choices = [(x["name"], x["name"]) for x in org_list]
-        dispatcher.prompt_from_menu(f"meraki get-meraki-devices", "Select Organization", choices)
+        dispatcher.prompt_from_menu(f"cisco_meraki get-meraki-devices", "Select Organization", choices)
 
         # Returning False indicates that the command needed to prompt the user for more information
         return False
