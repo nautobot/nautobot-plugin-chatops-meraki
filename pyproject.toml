@@ -15,7 +15,7 @@ packages = [
     { include = "nautobot_plugin_chatops_meraki" },
 ]
 [tool.poetry.plugins."nautobot.workers"]
-"meraki" = "nautobot_plugin_chatops_meraki.worker:meraki"
+"meraki" = "nautobot_plugin_chatops_meraki.worker:cisco_meraki"
 
 [tool.poetry.dependencies]
 python = "^3.6"
