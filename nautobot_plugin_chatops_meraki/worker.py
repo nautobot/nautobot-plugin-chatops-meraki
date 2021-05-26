@@ -76,7 +76,7 @@ def get_devices(dispatcher, org_name=None, device_type=None):
         return False
     if not device_type:
         device_choices = ["All", "Access Points", "Cameras", "Firewalls", "Switches"]
-        dispatcher.prompt_from_menu(f"meraki get-devices org_name", "Select Device Type", device_choices)
+        dispatcher.prompt_from_menu(f"meraki get-devices {org_name}", "Select Device Type", device_choices)
         return False
 
     dispatcher.send_markdown(
