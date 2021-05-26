@@ -193,6 +193,7 @@ def get_networks(dispatcher, org_name=None):
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
+@subcommand_of("meraki")
 def get_switchports(dispatcher, org_name=None, device_name=None):
     """Query the Meraki Dashboard API for a list of switch ports."""
     if not org_name:
@@ -208,16 +209,19 @@ def get_switchports(dispatcher, org_name=None, device_name=None):
     return CommandStatusChoices.STATUS_SUCCEEDED    
 
 
+@subcommand_of("meraki")
 def get_firewall_performance(dispatcher, org_name=None, device_name=None):
     """Query Meraki with a firewall to device performance."""
     pass
 
 
+@subcommand_of("meraki")
 def get_network_ssids(dispatcher, org_name=None, net_name=None):
     """Query Meraki for all SSIDs for a given Network."""
     pass
 
 
+@subcommand_of("meraki")
 def get_meraki_camera_recent(dispatcher, org_name=None, device_name=None):
     """Query Meraki Recent Camera Analytics."""
     pass
