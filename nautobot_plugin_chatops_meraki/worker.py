@@ -203,7 +203,7 @@ def get_switchports(dispatcher, org_name=None, device_name=None):
     ports = get_meraki_switchports(org_name, device_name)
     blocks = [
         dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the switchports for {device_name}"),
-        dispatcher.markdown_block("\n".join([x["name"] for x in ports])),
+        dispatcher.markdown_block("\n".join(ports)),
     ]
     dispatcher.send_blocks(blocks)
     return CommandStatusChoices.STATUS_SUCCEEDED    

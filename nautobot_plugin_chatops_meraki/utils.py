@@ -45,7 +45,7 @@ def get_meraki_networks_by_org(org_name):
 def get_meraki_switchports(org_name, device_name):
     """Query the Meraki Dashboard API for a list of Networks."""
     dashboard = meraki.DashboardAPI(suppress_logging=True)
-    return dashboard.switch.getDeviceSwitchPorts(_switchname_to_serial(_org_name_to_id(org_name), device_name))
+    return dashboard.switch.getDeviceSwitchPorts(_switchname_to_serial(_org_name_to_id(org_name), _switchname_to_serial(org_name, device_name)))
 
 
 def get_meraki_firewall_performance(org_name, device_name):
