@@ -148,6 +148,7 @@ def get_cameras(dispatcher, org_name=None):
     dispatcher.send_blocks(blocks)
     return CommandStatusChoices.STATUS_SUCCEEDED
 
+
 @subcommand_of("meraki")
 def get_aps(dispatcher, org_name=None):
     """Gathers devices from Meraki API endpoint."""
@@ -189,3 +190,23 @@ def get_networks(dispatcher, org_name=None):
     ]
     dispatcher.send_blocks(blocks)
     return CommandStatusChoices.STATUS_SUCCEEDED
+
+
+def get_switchports(dispatcher, org_name=None, device_name=None):
+    """Query the Meraki Dashboard API for a list of switch ports."""
+    pass
+
+
+def get_firewall_performance(dispatcher, org_name=None, device_name=None):
+    """Query Meraki with a firewall to device performance."""
+    pass
+
+
+def get_network_ssids(dispatcher, org_name=None, net_name=None):
+    """Query Meraki for all SSIDs for a given Network."""
+    pass
+
+
+def get_meraki_camera_recent(dispatcher, org_name=None, device_name=None):
+    """Query Meraki Recent Camera Analytics"""
+    pass
