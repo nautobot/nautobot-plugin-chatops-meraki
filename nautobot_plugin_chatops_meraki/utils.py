@@ -45,22 +45,22 @@ def get_meraki_networks_by_org(org_name):
 def get_meraki_switchports(org_name, device_name):
     """Query the Meraki Dashboard API for a list of Networks."""
     dashboard = meraki.DashboardAPI(suppress_logging=True)
-    return dashboard.switch.getDeviceSwitchPorts(_switchname_to_serial(org_name, device_name))
+    return dashboard.switch.getDeviceSwitchPorts(_switchname_to_serial(_org_name_to_id(org_name), device_name))
 
 
 def get_meraki_firewall_performance(org_name, device_name):
     """Query Meraki with a firewall to return device performance."""
     dashboard = meraki.DashboardAPI(suppress_logging=True)
-    return dashboard.appliance.getDeviceAppliancePerformance(_switchname_to_serial(org_name, device_name))
+    return dashboard.appliance.getDeviceAppliancePerformance(_switchname_to_serial(_org_name_to_id(org_name), device_name))
 
 
 def get_meraki_network_ssids(org_name, net_name):
     """Query Meraki for a Networks SSIDs."""
     dashboard = meraki.DashboardAPI(suppress_logging=True)
-    return dashboard.wireless.getNetworkWirelessSsids(_netname_to_id(org_name, net_name))
+    return dashboard.wireless.getNetworkWirelessSsids(_netname_to_id(_org_name_to_id(org_name), net_name))
 
 
 def get_meraki_camera_recent(org_name, device_name):
-    """Query Meraki Recent Cameras"""
+    """Query Meraki Recent Cameras."""
     dashboard = meraki.DashboardAPI(suppress_logging=True)
-    return dashboard.camera.getDeviceCameraAnalyticsRecent(_switchname_to_serial(org_name, device_name))
+    return dashboard.camera.getDeviceCameraAnalyticsRecent(_switchname_to_serial(_org_name_to_id(org_name), device_name))

@@ -11,6 +11,9 @@ from .utils import (
     get_meraki_devices,
     get_meraki_networks_by_org,
     get_meraki_switchports,
+    get_meraki_firewall_performance,
+    get_meraki_network_ssids,
+    get_meraki_camera_recent,
 )
 
 logger = logging.getLogger("rq.worker")
@@ -26,9 +29,7 @@ def cisco_meraki(subcommand, **kwargs):
 def get_organizations(dispatcher):
     """Gather all the Meraki Organizations."""
     org_list = get_meraki_orgs()
-    # If gathering information from another system may take some time, it's useful to send the user
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the Organizations!")
-    # Render the list of devices to Markdown for display to the user's chat client
     blocks = [
         dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the Meraki organizations"),
         dispatcher.markdown_block("\n".join([x["name"] for x in org_list])),
@@ -86,7 +87,7 @@ def get_devices(dispatcher, org_name=None):
 
 @subcommand_of("meraki")
 def get_switches(dispatcher, org_name=None):
-    """Gathers devices from Meraki API endpoint."""
+    """Gathers switches from Meraki API endpoint."""
     logger.info(f"ORG NAME: {org_name}")
     if not org_name:
         org_list = get_meraki_orgs()
@@ -107,7 +108,7 @@ def get_switches(dispatcher, org_name=None):
 
 @subcommand_of("meraki")
 def get_firewalls(dispatcher, org_name=None):
-    """Gathers devices from Meraki API endpoint."""
+    """Gathers firewalls from Meraki API endpoint."""
     logger.info(f"ORG NAME: {org_name}")
     if not org_name:
         org_list = get_meraki_orgs()
@@ -128,7 +129,7 @@ def get_firewalls(dispatcher, org_name=None):
 
 @subcommand_of("meraki")
 def get_cameras(dispatcher, org_name=None):
-    """Gathers devices from Meraki API endpoint."""
+    """Gathers cameras from Meraki API endpoint."""
     logger.info(f"ORG NAME: {org_name}")
     if not org_name:
         org_list = get_meraki_orgs()
@@ -151,7 +152,7 @@ def get_cameras(dispatcher, org_name=None):
 
 @subcommand_of("meraki")
 def get_aps(dispatcher, org_name=None):
-    """Gathers devices from Meraki API endpoint."""
+    """Gathers access points from Meraki API endpoint."""
     logger.info(f"ORG NAME: {org_name}")
     # logger.info(f"DEVICE TYPE: {device_type}")
     if not org_name:
@@ -194,7 +195,17 @@ def get_networks(dispatcher, org_name=None):
 
 def get_switchports(dispatcher, org_name=None, device_name=None):
     """Query the Meraki Dashboard API for a list of switch ports."""
-    pass
+    if not org_name:
+        dispatcher.send_warning("Organization Name is required. Use `/meraki get-organizations`")
+    if not device_name:
+        dispatcher.send_warning("Device Name is required. Use `/meraki get-devices`")
+    ports = get_meraki_switchports(org_name, device_name)
+    blocks = [
+        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the switchports for {device_name}"),
+        dispatcher.markdown_block("\n".join([x["name"] for x in ports])),
+    ]
+    dispatcher.send_blocks(blocks)
+    return CommandStatusChoices.STATUS_SUCCEEDED    
 
 
 def get_firewall_performance(dispatcher, org_name=None, device_name=None):
@@ -208,5 +219,5 @@ def get_network_ssids(dispatcher, org_name=None, net_name=None):
 
 
 def get_meraki_camera_recent(dispatcher, org_name=None, device_name=None):
-    """Query Meraki Recent Camera Analytics"""
+    """Query Meraki Recent Camera Analytics."""
     pass
