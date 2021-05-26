@@ -23,6 +23,24 @@ def cisco_meraki(subcommand, **kwargs):
 
 
 @subcommand_of("meraki")
+def get_meraki_organizations(dispatcher):
+    """Gather all the Meraki Organizations."""
+    org_list = get_meraki_orgs()
+
+    # If gathering information from another system may take some time, it's useful to send the user
+    dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the Organizations!")
+
+    # Render the list of devices to Markdown for display to the user's chat client
+    blocks = [
+        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the Meraki organizations"),
+        dispatcher.markdown_block("\n".join([(x["name"], x["name"]) for x in org_list])),
+    ]
+
+    dispatcher.send_blocks(blocks)
+
+    return CommandStatusChoices.STATUS_SUCCEEDED
+
+@subcommand_of("meraki")
 def get_meraki_devices(dispatcher, org_name=None):
     """Gathers devices from Meraki API endpoint."""
     logger.info(f"ORG NAME: {org_name}")
