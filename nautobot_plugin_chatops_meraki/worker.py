@@ -244,7 +244,7 @@ def get_firewall_performance(dispatcher, org_name=None, device_name=None):
     fw_perfomance = get_meraki_firewall_performance(org_name, device_name)
     blocks = [
         dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
-        dispatcher.markdown_block("\n".join(fw_perfomance)),
+        dispatcher.markdown_block(fw_perfomance),
     ]
     dispatcher.send_blocks(blocks)
     return CommandStatusChoices.STATUS_SUCCEEDED
