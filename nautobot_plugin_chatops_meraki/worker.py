@@ -71,10 +71,7 @@ def get_devices(dispatcher, org_name=None):
     """Gathers devices from Meraki API endpoint."""
     logger.info(f"ORG NAME: {org_name}")
     if not org_name:
-        org_list = get_meraki_orgs()
-        choices = [(x["name"], x["name"]) for x in org_list]
-        dispatcher.prompt_from_menu(f"meraki get-devices", "Select Organization", choices)
-        return False
+        return prompt_for_organization(dispatcher, "meraki get-devices")
     dispatcher.send_markdown(
         f"Stand by {dispatcher.user_mention()}, I'm getting devices from Organization {org_name}!"
     )
@@ -92,10 +89,7 @@ def get_switches(dispatcher, org_name=None):
     """Gathers switches from Meraki API endpoint."""
     logger.info(f"ORG NAME: {org_name}")
     if not org_name:
-        org_list = get_meraki_orgs()
-        choices = [(x["name"], x["name"]) for x in org_list]
-        dispatcher.prompt_from_menu(f"meraki get-devices", "Select Organization", choices)
-        return False
+        return prompt_for_organization(dispatcher, "meraki get-switches")
     dispatcher.send_markdown(
         f"Stand by {dispatcher.user_mention()}, I'm getting switches from Organization {org_name}!"
     )
@@ -113,10 +107,7 @@ def get_firewalls(dispatcher, org_name=None):
     """Gathers firewalls from Meraki API endpoint."""
     logger.info(f"ORG NAME: {org_name}")
     if not org_name:
-        org_list = get_meraki_orgs()
-        choices = [(x["name"], x["name"]) for x in org_list]
-        dispatcher.prompt_from_menu(f"meraki get-devices", "Select Organization", choices)
-        return False
+        return prompt_for_organization(dispatcher, "meraki get-firewalls")
     dispatcher.send_markdown(
         f"Stand by {dispatcher.user_mention()}, I'm getting firewalls from Organization {org_name}!"
     )
@@ -134,11 +125,7 @@ def get_cameras(dispatcher, org_name=None):
     """Gathers cameras from Meraki API endpoint."""
     logger.info(f"ORG NAME: {org_name}")
     if not org_name:
-        org_list = get_meraki_orgs()
-        choices = [(x["name"], x["name"]) for x in org_list]
-        dispatcher.prompt_from_menu(f"meraki get-devices", "Select Organization", choices)
-        return False
-
+        return prompt_for_organization(dispatcher, "meraki get-cameras")
     dispatcher.send_markdown(
         f"Stand by {dispatcher.user_mention()}, I'm getting cameras from Organization {org_name}!"
     )
@@ -158,10 +145,7 @@ def get_aps(dispatcher, org_name=None):
     logger.info(f"ORG NAME: {org_name}")
     # logger.info(f"DEVICE TYPE: {device_type}")
     if not org_name:
-        org_list = get_meraki_orgs()
-        choices = [(x["name"], x["name"]) for x in org_list]
-        dispatcher.prompt_from_menu(f"meraki get-devices", "Select Organization", choices)
-        return False
+        return prompt_for_organization(dispatcher, "meraki get-aps")
     dispatcher.send_markdown(
         f"Stand by {dispatcher.user_mention()}, I'm getting access points from Organization {org_name}!"
     )
@@ -179,10 +163,7 @@ def get_networks(dispatcher, org_name=None):
     """Gathers networks from Meraki API endpoint."""
     logger.info(f"ORG NAME: {org_name}")
     if not org_name:
-        org_list = get_meraki_orgs()
-        choices = [(x["name"], x["name"]) for x in org_list]
-        dispatcher.prompt_from_menu(f"meraki get-networks", "Select Organization", choices)
-        return False
+        return prompt_for_organization(dispatcher, "meraki get-networks")
     dispatcher.send_markdown(
         f"Stand by {dispatcher.user_mention()}, I'm getting the networks at the Organization {org_name}!"
     )
@@ -198,8 +179,10 @@ def get_networks(dispatcher, org_name=None):
 @subcommand_of("meraki")
 def get_switchports(dispatcher, org_name=None, device_name=None):
     """Query the Meraki Dashboard API for a list of switch ports."""
+    # if not org_name:
+    #     dispatcher.send_warning("Organization Name is required. Use `/meraki get-organizations`")
     if not org_name:
-        dispatcher.send_warning("Organization Name is required. Use `/meraki get-organizations`")
+        return prompt_for_organization(dispatcher, "meraki get-switchports")
     if not device_name:
         dispatcher.send_warning("Device Name is required. Use `/meraki get-devices`")
     dispatcher.send_markdown(
