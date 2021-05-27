@@ -23,7 +23,7 @@ def prompt_for_organization(dispatcher, command):
     """Prompt the user to select a Meraki Organization."""
     org_list = get_meraki_orgs()
     dispatcher.prompt_from_menu(
-        command, "Select an Organization", [x["name"] for x in org_list]
+        command, "Select an Organization", [(x["name"], x["name"]) for x in org_list]
     )
     return False
 
