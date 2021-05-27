@@ -19,10 +19,18 @@ from .utils import (
 logger = logging.getLogger("rq.worker")
 
 
+def prompt_for_organization(dispatcher, command):
+    """Prompt the user to select a Meraki Organization."""
+    org_list = get_meraki_orgs()
+    dispatcher.prompt_from_menu(
+        command, "Select an Organization", [x["name"] for x in org_list]
+    )
+    return False
+
+
 @job("default")
 def cisco_meraki(subcommand, **kwargs):
     """Interact with Meraki."""
-    logger.info(kwargs.items())
     return handle_subcommands("meraki", subcommand, **kwargs)
 
 
@@ -44,14 +52,7 @@ def get_admins(dispatcher, org_name=None):
     """Based on an Organization Name Return the Admins."""
     logger.info(f"ORG NAME: {org_name}")
     if not org_name:
-        # The user didn't specify an organization, so prompt them to pick one
-        org_list = get_meraki_orgs()
-        # Build the list of sites, each as a pair of (user-visible string, internal value) entries
-        choices = [(x["name"], x["name"]) for x in org_list]
-        dispatcher.prompt_from_menu(f"meraki get-admins", "Select Organization", choices)
-        # Returning False indicates that the command needed to prompt the user for more information
-        return False
-    # If gathering information from another system may take some time, it's useful to send the user
+        return prompt_for_organization(dispatcher, "meraki get-admins")
     dispatcher.send_markdown(
         f"Stand by {dispatcher.user_mention()}, I'm getting the admins for the Organization {org_name}!"
     )

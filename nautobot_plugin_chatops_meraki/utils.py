@@ -5,17 +5,17 @@ import meraki
 
 def _org_name_to_id(org_name):
     """Translate Org Name to Org Id."""
-    return [org['id'] for org in get_meraki_orgs() if org['name'] == org_name][0]
+    return [org["id"] for org in get_meraki_orgs() if org["name"] == org_name][0]
 
 
 def _name_to_serial(org_name, device_name):
     """Translate Name to Serial."""
-    return [dev['serial'] for dev in get_meraki_devices(org_name) if dev['name'] == device_name][0]
+    return [dev["serial"] for dev in get_meraki_devices(org_name) if dev["name"] == device_name][0]
 
 
 def _netname_to_id(org_name, net_name):
     """Translate Network Name to Network ID."""
-    return [net['id'] for net in get_meraki_networks_by_org(org_name) if net['name'] == net_name][0]
+    return [net["id"] for net in get_meraki_networks_by_org(org_name) if net["name"] == net_name][0]
 
 
 def get_meraki_orgs():
