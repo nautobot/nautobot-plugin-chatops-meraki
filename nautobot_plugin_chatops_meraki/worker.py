@@ -182,7 +182,7 @@ def get_networks(dispatcher, org_name=None):
         dispatcher.prompt_from_menu(f"meraki get-networks", "Select Organization", choices)
         return False
     dispatcher.send_markdown(
-        f"Stand by {dispatcher.user_mention()}, I'm getting the devices at the Organization {org_name}!"
+        f"Stand by {dispatcher.user_mention()}, I'm getting the networks at the Organization {org_name}!"
     )
     networks = get_meraki_networks_by_org(org_name)
     blocks = [
@@ -200,9 +200,12 @@ def get_switchports(dispatcher, org_name=None, device_name=None):
         dispatcher.send_warning("Organization Name is required. Use `/meraki get-organizations`")
     if not device_name:
         dispatcher.send_warning("Device Name is required. Use `/meraki get-devices`")
+    dispatcher.send_markdown(
+        f"Stand by {dispatcher.user_mention()}, I'm getting the switchports from {device_name}!"
+    )
     ports = get_meraki_switchports(org_name, device_name)
     dispatcher.send_large_table(
-        ["Port ID", "Name", "Tags", "Enabled", "poeEnabled", "Type", "VLAN", "Voice VLAN", "Allowed VLANs", "Isolation Enabled", "RSTP Enabled", "STP Guard", "Link Negotiation", "Port Scheduled ID", "UDLD"],
+        ["Port", "Name", "Tags", "Enabled", "PoE", "Type", "VLAN", "Voice VLAN", "Allowed VLANs", "Isolation Enabled", "RSTP Enabled", "STP Guard", "Link Negotiation", "Port Scheduled ID", "UDLD"],
         [
             (
                 entry['portId'],
@@ -231,16 +234,55 @@ def get_switchports(dispatcher, org_name=None, device_name=None):
 @subcommand_of("meraki")
 def get_firewall_performance(dispatcher, org_name=None, device_name=None):
     """Query Meraki with a firewall to device performance."""
-    pass
+    if not org_name:
+        dispatcher.send_warning("Organization Name is required. Use `/meraki get-organizations`")
+    if not device_name:
+        dispatcher.send_warning("Device Name is required. Use `/meraki get-devices`")
+    dispatcher.send_markdown(
+        f"Stand by {dispatcher.user_mention()}, I'm getting the performance for {device_name}!"
+    )
+    fw_perfomance = get_meraki_firewall_performance(org_name, device_name)
+    blocks = [
+        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
+        dispatcher.markdown_block("\n".join(fw_perfomance)),
+    ]
+    dispatcher.send_blocks(blocks)
+    return CommandStatusChoices.STATUS_SUCCEEDED
 
 
 @subcommand_of("meraki")
 def get_network_ssids(dispatcher, org_name=None, net_name=None):
     """Query Meraki for all SSIDs for a given Network."""
-    pass
+    if not org_name:
+        dispatcher.send_warning("Organization Name is required. Use `/meraki get-organizations`")
+    if not net_name:
+        dispatcher.send_warning("Device Name is required. Use `/meraki get-networks`")
+    dispatcher.send_markdown(
+        f"Stand by {dispatcher.user_mention()}, I'm getting the SSIDs for network {net_name}!"
+    )
+    ssids = get_meraki_network_ssids(org_name, net_name)
+    blocks = [
+        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
+        dispatcher.markdown_block("\n".join([x['name'] for x in ssids])),
+    ]
+    dispatcher.send_blocks(blocks)
+    return CommandStatusChoices.STATUS_SUCCEEDED
 
 
 @subcommand_of("meraki")
-def get_meraki_camera_recent(dispatcher, org_name=None, device_name=None):
+def get_camera_recent(dispatcher, org_name=None, device_name=None):
     """Query Meraki Recent Camera Analytics."""
-    pass
+    if not org_name:
+        dispatcher.send_warning("Organization Name is required. Use `/meraki get-organizations`")
+    if not device_name:
+        dispatcher.send_warning("Device Name is required. Use `/meraki get-devices`")
+    dispatcher.send_markdown(
+        f"Stand by {dispatcher.user_mention()}, I'm getting the recent camera analytics for {device_name}!"
+    )
+    camera_stats = get_meraki_camera_recent(org_name, device_name)
+    blocks = [
+        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
+        dispatcher.markdown_block("\n".join([x['name'] for x in camera_stats])),
+    ]
+    dispatcher.send_blocks(blocks)
+    return CommandStatusChoices.STATUS_SUCCEEDED
