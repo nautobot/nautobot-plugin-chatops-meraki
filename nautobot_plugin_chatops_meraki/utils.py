@@ -51,7 +51,7 @@ def get_meraki_switchports(org_name, device_name):
 def get_meraki_firewall_performance(org_name, device_name):
     """Query Meraki with a firewall to return device performance."""
     dashboard = meraki.DashboardAPI(suppress_logging=True)
-    return dashboard.appliance.getDeviceAppliancePerformance(_name_to_serial(org_name), device_name))
+    return dashboard.appliance.getDeviceAppliancePerformance(_name_to_serial(org_name, device_name))
 
 
 def get_meraki_network_ssids(org_name, net_name):
@@ -63,4 +63,4 @@ def get_meraki_network_ssids(org_name, net_name):
 def get_meraki_camera_recent(org_name, device_name):
     """Query Meraki Recent Cameras."""
     dashboard = meraki.DashboardAPI(suppress_logging=True)
-    return dashboard.camera.getDeviceCameraAnalyticsRecent(_name_to_serial(_org_name_to_id(org_name), device_name))
+    return dashboard.camera.getDeviceCameraAnalyticsRecent(_name_to_serial(org_name, device_name))
