@@ -261,19 +261,11 @@ def get_network_ssids(dispatcher, org_name=None, net_name=None):
         f"Stand by {dispatcher.user_mention()}, I'm getting the SSIDs for network {net_name}!"
     )
     ssids = get_meraki_network_ssids(org_name, net_name)
-    dispatcher.send_large_table(
-        ["Zone", "Start Time", "End Time", "Enterances", "Average Count"],
-        [
-            (
-                entry['zoneId'],
-                entry['startTs'],
-                entry['endTs'],
-                entry['entrances'],
-                entry['averageCount'],
-            )
-            for entry in ssids
-        ],
-    )
+    blocks = [
+        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the SSIDs for network {net_name}"),
+        dispatcher.markdown_block("\n".join([x['name'] for x in ssids])),
+    ]
+    dispatcher.send_blocks(blocks)
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
@@ -288,9 +280,17 @@ def get_camera_recent(dispatcher, org_name=None, device_name=None):
         f"Stand by {dispatcher.user_mention()}, I'm getting the recent camera analytics for {device_name}!"
     )
     camera_stats = get_meraki_camera_recent(org_name, device_name)
-    blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
-        dispatcher.markdown_block("\n".join([x['name'] for x in camera_stats])),
-    ]
-    dispatcher.send_blocks(blocks)
+    dispatcher.send_large_table(
+        ["Zone", "Start Time", "End Time", "Entrances", "Average Count"],
+        [
+            (
+                entry['zoneId'],
+                entry['startTs'],
+                entry['endTs'],
+                entry['entrances'],
+                entry['averageCount'],
+            )
+            for entry in camera_stats
+        ],
+    )
     return CommandStatusChoices.STATUS_SUCCEEDED
