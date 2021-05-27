@@ -22,7 +22,7 @@ logger = logging.getLogger("rq.worker")
 @job("default")
 def cisco_meraki(subcommand, **kwargs):
     """Interact with Meraki."""
-    logger.info(**kwargs)
+    logger.info(kwargs.items())
     return handle_subcommands("meraki", subcommand, **kwargs)
 
 
