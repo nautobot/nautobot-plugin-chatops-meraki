@@ -261,11 +261,19 @@ def get_network_ssids(dispatcher, org_name=None, net_name=None):
         f"Stand by {dispatcher.user_mention()}, I'm getting the SSIDs for network {net_name}!"
     )
     ssids = get_meraki_network_ssids(org_name, net_name)
-    blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
-        dispatcher.markdown_block("\n".join([x['name'] for x in ssids])),
-    ]
-    dispatcher.send_blocks(blocks)
+    dispatcher.send_large_table(
+        ["Zone", "Start Time", "End Time", "Enterances", "Average Count"],
+        [
+            (
+                entry['zoneId'],
+                entry['startTs'],
+                entry['endTs'],
+                entry['entrances'],
+                entry['averageCount'],
+            )
+            for entry in ssids
+        ],
+    )
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
