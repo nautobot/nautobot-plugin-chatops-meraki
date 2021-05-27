@@ -272,6 +272,8 @@ def get_network_ssids(dispatcher, org_name=None, net_name=None):
 @subcommand_of("meraki")
 def get_camera_recent(dispatcher, org_name=None, device_name=None):
     """Query Meraki Recent Camera Analytics."""
+    logger.info(f"ORG NAME: {org_name}")
+    logger.info(f"DEVICE NAME: {device_name}")
     if not org_name:
         dispatcher.send_warning("Organization Name is required. Use `/meraki get-organizations`")
     if not device_name:
