@@ -332,9 +332,12 @@ def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
     for key, vals in neighbor_list['ports'].items():
         for dp_type, dp_vals in vals.items():
             if dp_type == 'cdp':
-                table_data.append((key, dp_type, dp_vals['deviceId'], dp_vals['portId'], dp_vals['address']))
+                print('inside cdp')
+                table_data.append((key, dp_type, dp_vals.get('deviceId'), dp_vals.get('portId'), dp_vals.get('address')))
             elif dp_type == 'lldp':
-                table_data.append((key, dp_type, dp_vals['systemName'], dp_vals['portId'], dp_vals['managementAddress']))
+                print('inside lldp')
+                print(dp_vals)
+                table_data.append((key, dp_type, dp_vals.get('systemName'), dp_vals.get('portId'), dp_vals.get('managementAddress')))
             else:
                 print(dp_type)
     dispatcher.send_large_table(
