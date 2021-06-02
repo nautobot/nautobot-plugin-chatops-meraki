@@ -15,6 +15,7 @@ from .utils import (
     get_meraki_network_ssids,
     get_meraki_camera_recent,
     get_meraki_device_clients,
+    get_meraki_device_lldpcdp,
 )
 
 logger = logging.getLogger("rq.worker")
@@ -310,5 +311,32 @@ def get_clients(dispatcher, org_name=None, device_name=None):
             )
             for entry in client_list
         ],
+    )
+    return CommandStatusChoices.STATUS_SUCCEEDED
+
+
+@subcommand_of("meraki")
+def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
+    """Query Meraki for List of Clients."""
+    logger.info(f"ORG NAME: {org_name}")
+    logger.info(f"DEVICE NAME: {device_name}")
+    if not org_name:
+        dispatcher.send_warning("Organization Name is required. Use `/meraki get-organizations`")
+    if not device_name:
+        dispatcher.send_warning("Device Name is required. Use `/meraki get-devices`")
+    dispatcher.send_markdown(
+        f"Stand by {dispatcher.user_mention()}, I'm getting the discovery protocol for {device_name}!"
+    )
+    neighbor_list = get_meraki_device_lldpcdp(org_name, device_name)
+    table_data = []
+    for key, vals in neighbor_list['ports'].items():
+        for dp_type, dp_vals in vals.items():
+            if dp_type == 'cdp':
+                table_data.append((key, dp_type, dp_vals['deviceId'], dp_vals['portId'], dp_vals['address']))
+            else:
+                table_data.append((key, dp_type, dp_vals['systemName'], dp_vals['portId'], dp_vals['managementAddress']))
+    dispatcher.send_large_table(
+        ["Local Port", "Type", "Remote Device", "Remote Port", "Remote Address"],
+        table_data,
     )
     return CommandStatusChoices.STATUS_SUCCEEDED
