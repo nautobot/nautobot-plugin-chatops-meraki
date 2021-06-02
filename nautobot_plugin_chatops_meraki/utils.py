@@ -64,3 +64,9 @@ def get_meraki_camera_recent(org_name, device_name):
     """Query Meraki Recent Cameras."""
     dashboard = meraki.DashboardAPI(suppress_logging=True)
     return dashboard.camera.getDeviceCameraAnalyticsRecent(_name_to_serial(org_name, device_name))
+
+
+def get_meraki_device_clients(org_name, device_name):
+    """Query Meraki for Clients."""
+    dashboard = meraki.DashboardAPI(suppress_logging=True)
+    return dashboard.devices.getDeviceClients(_name_to_serial(org_name, device_name))

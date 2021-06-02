@@ -14,6 +14,7 @@ from .utils import (
     get_meraki_firewall_performance,
     get_meraki_network_ssids,
     get_meraki_camera_recent,
+    get_meraki_device_clients,
 )
 
 logger = logging.getLogger("rq.worker")
@@ -179,10 +180,8 @@ def get_networks(dispatcher, org_name=None):
 @subcommand_of("meraki")
 def get_switchports(dispatcher, org_name=None, device_name=None):
     """Query the Meraki Dashboard API for a list of switch ports."""
-    # if not org_name:
-    #     dispatcher.send_warning("Organization Name is required. Use `/meraki get-organizations`")
     if not org_name:
-        return prompt_for_organization(dispatcher, "meraki get-switchports")
+        dispatcher.send_warning("Organization Name is required. Use `/meraki get-organizations`")
     if not device_name:
         dispatcher.send_warning("Device Name is required. Use `/meraki get-devices`")
     dispatcher.send_markdown(
@@ -278,6 +277,38 @@ def get_camera_recent(dispatcher, org_name=None, device_name=None):
                 entry['averageCount'],
             )
             for entry in camera_stats
+        ],
+    )
+    return CommandStatusChoices.STATUS_SUCCEEDED
+
+
+@subcommand_of("meraki")
+def get_clients(dispatcher, org_name=None, device_name=None):
+    """Query Meraki for List of Clients."""
+    logger.info(f"ORG NAME: {org_name}")
+    logger.info(f"DEVICE NAME: {device_name}")
+    if not org_name:
+        dispatcher.send_warning("Organization Name is required. Use `/meraki get-organizations`")
+    if not device_name:
+        dispatcher.send_warning("Device Name is required. Use `/meraki get-devices`")
+    dispatcher.send_markdown(
+        f"Stand by {dispatcher.user_mention()}, I'm getting the clients for {device_name}!"
+    )
+    client_list = get_meraki_device_clients(org_name, device_name)
+    dispatcher.send_large_table(
+        ["Usage", "Description", "MAC", "IP", "User", "VLAN", "Switchport", "DHCP Hostname"],
+        [
+            (
+                entry['usage'],
+                entry['description'],
+                entry['mac'],
+                entry['ip'],
+                entry['user'],
+                entry['vlan'],
+                entry['switchport'],
+                entry['dhcpHostname'],
+            )
+            for entry in client_list
         ],
     )
     return CommandStatusChoices.STATUS_SUCCEEDED
