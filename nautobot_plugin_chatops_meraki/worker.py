@@ -333,8 +333,10 @@ def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
         for dp_type, dp_vals in vals.items():
             if dp_type == 'cdp':
                 table_data.append((key, dp_type, dp_vals['deviceId'], dp_vals['portId'], dp_vals['address']))
-            else:
+            elif dp_type == 'lldp':
                 table_data.append((key, dp_type, dp_vals['systemName'], dp_vals['portId'], dp_vals['managementAddress']))
+            else:
+                print(dp_type)
     dispatcher.send_large_table(
         ["Local Port", "Type", "Remote Device", "Remote Port", "Remote Address"],
         table_data,
