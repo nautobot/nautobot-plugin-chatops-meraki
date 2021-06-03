@@ -30,9 +30,9 @@ def prompt_for_organization(dispatcher, command):
     return False
 
 
-def prompt_for_device(dispatcher, command):
+def prompt_for_device(dispatcher, command, org):
     """Prompt the user to select a Meraki Organization."""
-    dev_list = get_meraki_devices()
+    dev_list = get_meraki_devices(org)
     dispatcher.prompt_from_menu(
         command, "Select a Device", [(x["name"], x["name"]) for x in dev_list]
     )
@@ -203,7 +203,7 @@ def get_switchports(dispatcher, org_name=None, device_name=None):
     #    f"Stand by {dispatcher.user_mention()}, I'm getting the Organizations {org_name}!"
     #)
     if not device_name:
-        return prompt_for_device(dispatcher, f"meraki get-switchports {org_name}")
+        return prompt_for_device(dispatcher, f"meraki get-switchports {org_name}", org_name)
     #dispatcher.send_markdown(
     #    f"Stand by {dispatcher.user_mention()}, I'm getting the admins for the Organization {org_name}!"
     #)
