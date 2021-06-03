@@ -166,46 +166,48 @@ def get_switchports(dispatcher, org_name=None, device_name=None):
         return prompt_for_device(dispatcher, f"meraki get-switchports {org_name}", org_name, dev_type="switches")
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the switchports from {device_name}!")
     ports = get_meraki_switchports(org_name, device_name)
-    dispatcher.send_large_table(
-        [
-            "Port",
-            "Name",
-            "Tags",
-            "Enabled",
-            "PoE",
-            "Type",
-            "VLAN",
-            "Voice VLAN",
-            "Allowed VLANs",
-            "Isolation Enabled",
-            "RSTP Enabled",
-            "STP Guard",
-            "Link Negotiation",
-            "Port Scheduled ID",
-            "UDLD",
-        ],
-        [
-            (
-                entry["portId"],
-                entry["name"],
-                entry["tags"],
-                entry["enabled"],
-                entry["poeEnabled"],
-                entry["type"],
-                entry["vlan"],
-                entry["voiceVlan"],
-                entry["allowedVlans"],
-                entry["isolationEnabled"],
-                entry["rstpEnabled"],
-                entry["stpGuard"],
-                entry["linkNegotiation"],
-                entry["portScheduleId"],
-                entry["udld"],
-            )
-            for entry in ports
-        ],
-    )
-
+    if len(ports) > 0:
+        dispatcher.send_large_table(
+            [
+                "Port",
+                "Name",
+                "Tags",
+                "Enabled",
+                "PoE",
+                "Type",
+                "VLAN",
+                "Voice VLAN",
+                "Allowed VLANs",
+                "Isolation Enabled",
+                "RSTP Enabled",
+                "STP Guard",
+                "Link Negotiation",
+                "Port Scheduled ID",
+                "UDLD",
+            ],
+            [
+                (
+                    entry["portId"],
+                    entry["name"],
+                    entry["tags"],
+                    entry["enabled"],
+                    entry["poeEnabled"],
+                    entry["type"],
+                    entry["vlan"],
+                    entry["voiceVlan"],
+                    entry["allowedVlans"],
+                    entry["isolationEnabled"],
+                    entry["rstpEnabled"],
+                    entry["stpGuard"],
+                    entry["linkNegotiation"],
+                    entry["portScheduleId"],
+                    entry["udld"],
+                )
+                for entry in ports
+            ],
+        )
+    else:
+        dispatcher.send_markdown(f"{dispatcher.user_mention()}, No LLDP/CDP Neighbors found!")
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
