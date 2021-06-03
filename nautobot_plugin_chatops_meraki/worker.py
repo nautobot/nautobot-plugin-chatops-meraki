@@ -312,14 +312,14 @@ def get_camera_recent(dispatcher, org_name=None, device_name=None):
             for entry in camera_stats
         ],
     )
-    dispatcher.send_blocks(
-        dispatcher.command_response_header(
-            “meraki”,
-            “get-camera-recent”,
-            [(“org_name”, f’“{org_name”‘), (“device”, f’“{device}“’)],
-            “Get Recent Camera …”
-        )
-    )
+    # dispatcher.send_blocks(
+    #     dispatcher.command_response_header(
+    #         “meraki”,
+    #         “get-camera-recent”,
+    #         [(“org_name”, f’“{org_name”‘), (“device”, f’“{device}“’)],
+    #         “Get Recent Camera …”
+    #     )
+    # )
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
