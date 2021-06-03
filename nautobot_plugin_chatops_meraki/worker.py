@@ -21,7 +21,7 @@ from .utils import (
 logger = logging.getLogger("rq.worker")
 
 
-DEVICE_TYPES = [("all", "all"), ("aps", "aps"), ("cameras", "cameras"), ("firewall", "firewall"), ("switch", "switch")]
+DEVICE_TYPES = [("all", "all"), ("Access Points", "MR"), ("cameras", "cameras"), ("firewalls", "firewalls"), ("switches", "switches")]
 
 
 def prompt_for_organization(dispatcher, command):
@@ -49,6 +49,19 @@ def prompt_for_network(dispatcher, command, org):
         command, "Select a Network", [(x["name"], x["name"]) for x in net_list if len(x["name"]) > 0]
     )
     return False
+
+
+def parse_device_list(dev_type, devs):
+    """Take a list of device and a type and returns only those device types."""
+    device_type_mapper = {
+        "firewalls": "MX",
+        "switches": "MS",
+        "cameras": "MV",
+        "aps": "MR",
+    }
+    if dev_type != "all":
+        return [dev['name'] for dev in devs if device_type_mapper.get(dev_type) in dev['model']]
+    return [dev['name'] for dev in devs]
 
 
 @job("default")
@@ -100,10 +113,12 @@ def get_devices(dispatcher, org_name=None, device_type=None):
                 f"meraki get-devices '{org_name}'", "Select a Device Type", DEVICE_TYPES
             )
         return False
+    logger.info(f"Device Type: {device_type}")
     devices = get_meraki_devices(org_name)
+    devices_result = parse_device_list(device_type, devices)
     blocks = [
         dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
-        dispatcher.markdown_block("\n".join([x["name"] for x in devices])),
+        dispatcher.markdown_block("\n".join(devices_result)),
     ]
     dispatcher.send_blocks(blocks)
     return CommandStatusChoices.STATUS_SUCCEEDED
