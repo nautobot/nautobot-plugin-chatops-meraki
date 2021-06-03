@@ -34,7 +34,7 @@ def prompt_for_device(dispatcher, command, org):
     """Prompt the user to select a Meraki Organization."""
     dev_list = get_meraki_devices(org)
     dispatcher.prompt_from_menu(
-        command, "Select a Device", [(x["name"], x["name"]) for x in dev_list]
+        command, "Select a Device", [(x["name"], x["name"]) for x in dev_list if len(x["name"]) > 0]
     )
     return False
 
