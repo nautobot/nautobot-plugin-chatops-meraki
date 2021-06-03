@@ -21,7 +21,13 @@ from .utils import (
 logger = logging.getLogger("rq.worker")
 
 
-DEVICE_TYPES = [("All", "all"), ("Access Points", "MR"), ("Cameras", "MV"), ("Firewalls", "MX"), ("Switches", "MS")]
+DEVICE_TYPES = [
+    ("all", "all"),
+    ("aps", "aps"),
+    ("cameras", "cameras"),
+    ("firewalls", "firewalls"),
+    ("switches", "switches"),
+]
 
 
 def prompt_for_organization(dispatcher, command):
@@ -31,9 +37,15 @@ def prompt_for_organization(dispatcher, command):
     return False
 
 
-def prompt_for_device(dispatcher, command, org):
+def prompt_for_device(dispatcher, command, org, dev_type=None):
     """Prompt the user to select a Meraki device."""
     dev_list = get_meraki_devices(org)
+    if not dev_type:
+        dispatcher.prompt_from_menu(
+            command, "Select a Device", [(dev["name"], dev["name"]) for dev in dev_list if len(dev["name"]) > 0]
+        )
+        return False
+    dev_list = parse_device_list(dev_type, get_meraki_devices(org))
     dispatcher.prompt_from_menu(
         command, "Select a Device", [(dev["name"], dev["name"]) for dev in dev_list if len(dev["name"]) > 0]
     )
@@ -51,8 +63,14 @@ def prompt_for_network(dispatcher, command, org):
 
 def parse_device_list(dev_type, devs):
     """Take a list of device and a type and returns only those device types."""
+    meraki_dev_mapper = {
+        "aps": "MR",
+        "cameras": "MV",
+        "firewalls": "MX",
+        "switches": "MS",
+    }
     if dev_type != "all":
-        return [dev["name"] for dev in devs if dev_type in dev["model"]]
+        return [dev["name"] for dev in devs if meraki_dev_mapper.get(dev_type) in dev["model"]]
     return [dev["name"] for dev in devs]
 
 
@@ -113,7 +131,7 @@ def get_devices(dispatcher, org_name=None, device_type=None):
         ]
     else:
         blocks = [
-            dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices requested"),
+            dispatcher.markdown_block(f"{dispatcher.user_mention()} there are NO devices that meet the requirements"),
         ]
     dispatcher.send_blocks(blocks)
     return CommandStatusChoices.STATUS_SUCCEEDED
@@ -145,7 +163,7 @@ def get_switchports(dispatcher, org_name=None, device_name=None):
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-switchports")
     if not device_name:
-        return prompt_for_device(dispatcher, f"meraki get-switchports {org_name}", org_name)
+        return prompt_for_device(dispatcher, f"meraki get-switchports {org_name}", org_name, dev_type="switches")
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the switchports from {device_name}!")
     ports = get_meraki_switchports(org_name, device_name)
     dispatcher.send_large_table(
@@ -199,7 +217,9 @@ def get_firewall_performance(dispatcher, org_name=None, device_name=None):
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-firewall-performance")
     if not device_name:
-        return prompt_for_device(dispatcher, f"meraki get-firewall-performance {org_name}", org_name)
+        return prompt_for_device(
+            dispatcher, f"meraki get-firewall-performance {org_name}", org_name, dev_type="firewalls"
+        )
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the performance for {device_name}!")
     fw_perfomance = get_meraki_firewall_performance(org_name, device_name)
     blocks = [
@@ -237,7 +257,7 @@ def get_camera_recent(dispatcher, org_name=None, device_name=None):
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-camera-recent")
     if not device_name:
-        return prompt_for_device(dispatcher, f"meraki get-camera-recent '{org_name}'", org_name)
+        return prompt_for_device(dispatcher, f"meraki get-camera-recent '{org_name}'", org_name, dev_type="cameras")
     dispatcher.send_markdown(
         f"Stand by {dispatcher.user_mention()}, I'm getting the recent camera analytics for {device_name}!"
     )
