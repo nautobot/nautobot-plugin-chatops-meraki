@@ -1,0 +1,30 @@
+---
+language: python
+python:
+- '3.6'
+- '3.7'
+- '3.8'
+env:
+# Each version of Nautobot listed here must have a corresponding directory/configuration file 
+# under development/nautobot_<NAUTOBOT_VER>/configuration.py
+  matrix:
+  - NAUTOBOT_VER=v1.0.0b3
+  - NAUTOBOT_VER=main
+# Encrypted value for PYPI_TOKEN, this secret has been generated with the following command
+#   travis encrypt PYPI_TOKEN=<value> --add env.global --com
+# Might need to update it once the repo is publish (travis-ci.org vs travis-ci.com)
+  # global:
+  #   secure: <Add encrypted token>
+services:
+- docker
+# --------------------------------------------------------------------------
+# Tests
+# --------------------------------------------------------------------------
+before_script:
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+- pip install invoke docker-compose
+- cp creds.env.example creds.env
+
+script:
+- invoke build --python-ver $TRAVIS_PYTHON_VERSION
+- invoke tests --python-ver $TRAVIS_PYTHON_VERSION
