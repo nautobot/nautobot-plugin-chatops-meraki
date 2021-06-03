@@ -166,48 +166,45 @@ def get_switchports(dispatcher, org_name=None, device_name=None):
         return prompt_for_device(dispatcher, f"meraki get-switchports {org_name}", org_name, dev_type="switches")
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the switchports from {device_name}!")
     ports = get_meraki_switchports(org_name, device_name)
-    if len(ports) > 0:
-        dispatcher.send_large_table(
-            [
-                "Port",
-                "Name",
-                "Tags",
-                "Enabled",
-                "PoE",
-                "Type",
-                "VLAN",
-                "Voice VLAN",
-                "Allowed VLANs",
-                "Isolation Enabled",
-                "RSTP Enabled",
-                "STP Guard",
-                "Link Negotiation",
-                "Port Scheduled ID",
-                "UDLD",
-            ],
-            [
-                (
-                    entry["portId"],
-                    entry["name"],
-                    entry["tags"],
-                    entry["enabled"],
-                    entry["poeEnabled"],
-                    entry["type"],
-                    entry["vlan"],
-                    entry["voiceVlan"],
-                    entry["allowedVlans"],
-                    entry["isolationEnabled"],
-                    entry["rstpEnabled"],
-                    entry["stpGuard"],
-                    entry["linkNegotiation"],
-                    entry["portScheduleId"],
-                    entry["udld"],
-                )
-                for entry in ports
-            ],
-        )
-    else:
-        dispatcher.send_markdown(f"{dispatcher.user_mention()}, No LLDP/CDP Neighbors found!")
+    dispatcher.send_large_table(
+        [
+            "Port",
+            "Name",
+            "Tags",
+            "Enabled",
+            "PoE",
+            "Type",
+            "VLAN",
+            "Voice VLAN",
+            "Allowed VLANs",
+            "Isolation Enabled",
+            "RSTP Enabled",
+            "STP Guard",
+            "Link Negotiation",
+            "Port Scheduled ID",
+            "UDLD",
+        ],
+        [
+            (
+                entry["portId"],
+                entry["name"],
+                entry["tags"],
+                entry["enabled"],
+                entry["poeEnabled"],
+                entry["type"],
+                entry["vlan"],
+                entry["voiceVlan"],
+                entry["allowedVlans"],
+                entry["isolationEnabled"],
+                entry["rstpEnabled"],
+                entry["stpGuard"],
+                entry["linkNegotiation"],
+                entry["portScheduleId"],
+                entry["udld"],
+            )
+            for entry in ports
+        ],
+    )
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
@@ -331,24 +328,27 @@ def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
         f"Stand by {dispatcher.user_mention()}, I'm getting the discovery protocol information for {device_name}!"
     )
     neighbor_list = get_meraki_device_lldpcdp(org_name, device_name)
-    table_data = []
-    for key, vals in neighbor_list["ports"].items():
-        for dp_type, dp_vals in vals.items():
-            if dp_type == "cdp":
-                print("inside cdp")
-                table_data.append(
-                    (key, dp_type, dp_vals.get("deviceId"), dp_vals.get("portId"), dp_vals.get("address"))
-                )
-            elif dp_type == "lldp":
-                print("inside lldp")
-                print(dp_vals)
-                table_data.append(
-                    (key, dp_type, dp_vals.get("systemName"), dp_vals.get("portId"), dp_vals.get("managementAddress"))
-                )
-            else:
-                print(dp_type)
-    dispatcher.send_large_table(
-        ["Local Port", "Type", "Remote Device", "Remote Port", "Remote Address"],
-        table_data,
-    )
+    if len(neighbor_list) > 0:
+        table_data = []
+        for key, vals in neighbor_list["ports"].items():
+            for dp_type, dp_vals in vals.items():
+                if dp_type == "cdp":
+                    print("inside cdp")
+                    table_data.append(
+                        (key, dp_type, dp_vals.get("deviceId"), dp_vals.get("portId"), dp_vals.get("address"))
+                    )
+                elif dp_type == "lldp":
+                    print("inside lldp")
+                    print(dp_vals)
+                    table_data.append(
+                        (key, dp_type, dp_vals.get("systemName"), dp_vals.get("portId"), dp_vals.get("managementAddress"))
+                    )
+                else:
+                    print(dp_type)
+        dispatcher.send_large_table(
+            ["Local Port", "Type", "Remote Device", "Remote Port", "Remote Address"],
+            table_data,
+        )
+    else:
+        dispatcher.send_markdown(f"{dispatcher.user_mention()}, NO LLDP/CDP neighbors for {device_name}!")
     return CommandStatusChoices.STATUS_SUCCEEDED
