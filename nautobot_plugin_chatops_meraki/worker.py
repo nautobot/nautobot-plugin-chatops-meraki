@@ -21,6 +21,9 @@ from .utils import (
 logger = logging.getLogger("rq.worker")
 
 
+DEVICE_TYPES = [("all", "all"), ("aps", "aps"), ("cameras", "cameras"), ("firewall", "firewall"), ("switch", "switch")]
+
+
 def prompt_for_organization(dispatcher, command):
     """Prompt the user to select a Meraki Organization."""
     org_list = get_meraki_orgs()
@@ -92,9 +95,11 @@ def get_devices(dispatcher, org_name=None, device_type=None):
     logger.info(f"ORG NAME: {org_name}")
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-devices")
-    dispatcher.prompt_from_menu(
-            f"meraki get-devices '{org_name}'", "Select a Device Type", [("firewall", "firewall"),("switch", "switch")]
-        )
+    if not device_type:
+        dispatcher.prompt_from_menu(
+                f"meraki get-devices '{org_name}'", "Select a Device Type", DEVICE_TYPES
+            )
+        return False
     devices = get_meraki_devices(org_name)
     blocks = [
         dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
@@ -104,78 +109,78 @@ def get_devices(dispatcher, org_name=None, device_type=None):
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
-@subcommand_of("meraki")
-def get_switches(dispatcher, org_name=None):
-    """Gathers switches from Meraki API endpoint."""
-    logger.info(f"ORG NAME: {org_name}")
-    if not org_name:
-        return prompt_for_organization(dispatcher, "meraki get-switches")
-    dispatcher.send_markdown(
-        f"Stand by {dispatcher.user_mention()}, I'm getting switches from Organization {org_name}!"
-    )
-    devices = get_meraki_devices(org_name)
-    blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
-        dispatcher.markdown_block("\n".join([x['name'] for x in devices if 'MS' in x['model']])),
-    ]
-    dispatcher.send_blocks(blocks)
-    return CommandStatusChoices.STATUS_SUCCEEDED
+# @subcommand_of("meraki")
+# def get_switches(dispatcher, org_name=None):
+#     """Gathers switches from Meraki API endpoint."""
+#     logger.info(f"ORG NAME: {org_name}")
+#     if not org_name:
+#         return prompt_for_organization(dispatcher, "meraki get-switches")
+#     dispatcher.send_markdown(
+#         f"Stand by {dispatcher.user_mention()}, I'm getting switches from Organization {org_name}!"
+#     )
+#     devices = get_meraki_devices(org_name)
+#     blocks = [
+#         dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
+#         dispatcher.markdown_block("\n".join([x['name'] for x in devices if 'MS' in x['model']])),
+#     ]
+#     dispatcher.send_blocks(blocks)
+#     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
-@subcommand_of("meraki")
-def get_firewalls(dispatcher, org_name=None):
-    """Gathers firewalls from Meraki API endpoint."""
-    logger.info(f"ORG NAME: {org_name}")
-    if not org_name:
-        return prompt_for_organization(dispatcher, "meraki get-firewalls")
-    dispatcher.send_markdown(
-        f"Stand by {dispatcher.user_mention()}, I'm getting firewalls from Organization {org_name}!"
-    )
-    devices = get_meraki_devices(org_name)
-    blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
-        dispatcher.markdown_block("\n".join([x['name'] for x in devices if 'MX' in x['model']])),
-    ]
-    dispatcher.send_blocks(blocks)
-    return CommandStatusChoices.STATUS_SUCCEEDED
+# @subcommand_of("meraki")
+# def get_firewalls(dispatcher, org_name=None):
+#     """Gathers firewalls from Meraki API endpoint."""
+#     logger.info(f"ORG NAME: {org_name}")
+#     if not org_name:
+#         return prompt_for_organization(dispatcher, "meraki get-firewalls")
+#     dispatcher.send_markdown(
+#         f"Stand by {dispatcher.user_mention()}, I'm getting firewalls from Organization {org_name}!"
+#     )
+#     devices = get_meraki_devices(org_name)
+#     blocks = [
+#         dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
+#         dispatcher.markdown_block("\n".join([x['name'] for x in devices if 'MX' in x['model']])),
+#     ]
+#     dispatcher.send_blocks(blocks)
+#     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
-@subcommand_of("meraki")
-def get_cameras(dispatcher, org_name=None):
-    """Gathers cameras from Meraki API endpoint."""
-    logger.info(f"ORG NAME: {org_name}")
-    if not org_name:
-        return prompt_for_organization(dispatcher, "meraki get-cameras")
-    dispatcher.send_markdown(
-        f"Stand by {dispatcher.user_mention()}, I'm getting cameras from Organization {org_name}!"
-    )
-    devices = get_meraki_devices(org_name)
-    # Render the list of devices to Markdown for display to the user's chat client
-    blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
-        dispatcher.markdown_block("\n".join([x['name'] for x in devices if 'MV' in x['model']])),
-    ]
-    dispatcher.send_blocks(blocks)
-    return CommandStatusChoices.STATUS_SUCCEEDED
+# @subcommand_of("meraki")
+# def get_cameras(dispatcher, org_name=None):
+#     """Gathers cameras from Meraki API endpoint."""
+#     logger.info(f"ORG NAME: {org_name}")
+#     if not org_name:
+#         return prompt_for_organization(dispatcher, "meraki get-cameras")
+#     dispatcher.send_markdown(
+#         f"Stand by {dispatcher.user_mention()}, I'm getting cameras from Organization {org_name}!"
+#     )
+#     devices = get_meraki_devices(org_name)
+#     # Render the list of devices to Markdown for display to the user's chat client
+#     blocks = [
+#         dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
+#         dispatcher.markdown_block("\n".join([x['name'] for x in devices if 'MV' in x['model']])),
+#     ]
+#     dispatcher.send_blocks(blocks)
+#     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
-@subcommand_of("meraki")
-def get_aps(dispatcher, org_name=None):
-    """Gathers access points from Meraki API endpoint."""
-    logger.info(f"ORG NAME: {org_name}")
-    # logger.info(f"DEVICE TYPE: {device_type}")
-    if not org_name:
-        return prompt_for_organization(dispatcher, "meraki get-aps")
-    dispatcher.send_markdown(
-        f"Stand by {dispatcher.user_mention()}, I'm getting access points from Organization {org_name}!"
-    )
-    devices = get_meraki_devices(org_name)
-    blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
-        dispatcher.markdown_block("\n".join([x['name'] for x in devices if 'MR' in x['model']])),
-    ]
-    dispatcher.send_blocks(blocks)
-    return CommandStatusChoices.STATUS_SUCCEEDED
+# @subcommand_of("meraki")
+# def get_aps(dispatcher, org_name=None):
+#     """Gathers access points from Meraki API endpoint."""
+#     logger.info(f"ORG NAME: {org_name}")
+#     # logger.info(f"DEVICE TYPE: {device_type}")
+#     if not org_name:
+#         return prompt_for_organization(dispatcher, "meraki get-aps")
+#     dispatcher.send_markdown(
+#         f"Stand by {dispatcher.user_mention()}, I'm getting access points from Organization {org_name}!"
+#     )
+#     devices = get_meraki_devices(org_name)
+#     blocks = [
+#         dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
+#         dispatcher.markdown_block("\n".join([x['name'] for x in devices if 'MR' in x['model']])),
+#     ]
+#     dispatcher.send_blocks(blocks)
+#     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
 @subcommand_of("meraki")
