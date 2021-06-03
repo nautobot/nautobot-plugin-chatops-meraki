@@ -92,7 +92,9 @@ def get_devices(dispatcher, org_name=None, device_type=None):
     logger.info(f"ORG NAME: {org_name}")
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-devices")
-
+    dispatcher.prompt_from_menu(
+            f"meraki get-devices '{org_name}'", "Select a Device Type", ["firewall", "switch"]
+        )
     devices = get_meraki_devices(org_name)
     blocks = [
         dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
