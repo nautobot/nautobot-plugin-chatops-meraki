@@ -31,10 +31,19 @@ def prompt_for_organization(dispatcher, command):
 
 
 def prompt_for_device(dispatcher, command, org):
-    """Prompt the user to select a Meraki Organization."""
+    """Prompt the user to select a Meraki device."""
     dev_list = get_meraki_devices(org)
     dispatcher.prompt_from_menu(
         command, "Select a Device", [(x["name"], x["name"]) for x in dev_list if len(x["name"]) > 0]
+    )
+    return False
+
+
+def prompt_for_network(dispatcher, command, org):
+    """Prompt the user to select a Network name."""
+    net_list = get_meraki_networks_by_org(org)
+    dispatcher.prompt_from_menu(
+        command, "Select a Network", [(x["name"], x["name"]) for x in net_list if len(x["name"]) > 0]
     )
     return False
 
@@ -78,14 +87,12 @@ def get_admins(dispatcher, org_name=None):
 
 
 @subcommand_of("meraki")
-def get_devices(dispatcher, org_name=None):
+def get_devices(dispatcher, org_name=None, device_type=None):
     """Gathers devices from Meraki API endpoint."""
     logger.info(f"ORG NAME: {org_name}")
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-devices")
-    dispatcher.send_markdown(
-        f"Stand by {dispatcher.user_mention()}, I'm getting devices from Organization {org_name}!"
-    )
+
     devices = get_meraki_devices(org_name)
     blocks = [
         dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
@@ -302,6 +309,14 @@ def get_camera_recent(dispatcher, org_name=None, device_name=None):
             )
             for entry in camera_stats
         ],
+    )
+    dispatcher.send_blocks(
+        dispatcher.command_response_header(
+            “meraki”,
+            “get-camera-recent”,
+            [(“org_name”, f’“{org_name”‘), (“device”, f’“{device}“’)],
+            “Get Recent Camera …”
+        )
     )
     return CommandStatusChoices.STATUS_SUCCEEDED
 
