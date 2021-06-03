@@ -47,7 +47,7 @@ def prompt_for_device(dispatcher, command, org, dev_type=None):
         return False
     dev_list = parse_device_list(dev_type, get_meraki_devices(org))
     dispatcher.prompt_from_menu(
-        command, "Select a Device", dev_list
+        command, "Select a Device", [(dev, dev) for dev in dev_list]
     )
     return False
 
