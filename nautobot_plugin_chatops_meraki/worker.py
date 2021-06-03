@@ -93,7 +93,7 @@ def get_devices(dispatcher, org_name=None, device_type=None):
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-devices")
     dispatcher.prompt_from_menu(
-            f"meraki get-devices '{org_name}'", "Select a Device Type", ["firewall", "switch"]
+            f"meraki get-devices '{org_name}'", "Select a Device Type", [("firewall", "firewall"),("switch", "switch")]
         )
     devices = get_meraki_devices(org_name)
     blocks = [
