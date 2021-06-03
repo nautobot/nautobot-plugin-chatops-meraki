@@ -283,9 +283,9 @@ def get_camera_recent(dispatcher, org_name=None, device_name=None):
     logger.info(f"ORG NAME: {org_name}")
     logger.info(f"DEVICE NAME: {device_name}")
     if not org_name:
-        dispatcher.send_warning("Organization Name is required. Use `/meraki get-organizations`")
+        return prompt_for_organization(dispatcher, "meraki get-camera-recent")
     if not device_name:
-        dispatcher.send_warning("Device Name is required. Use `/meraki get-devices`")
+        return prompt_for_device(dispatcher, f"meraki get-camera-recent {org_name}", org_name)
     dispatcher.send_markdown(
         f"Stand by {dispatcher.user_mention()}, I'm getting the recent camera analytics for {device_name}!"
     )
