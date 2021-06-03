@@ -30,6 +30,15 @@ def prompt_for_organization(dispatcher, command):
     return False
 
 
+def prompt_for_device(dispatcher, command):
+    """Prompt the user to select a Meraki Organization."""
+    dev_list = get_meraki_devices()
+    dispatcher.prompt_from_menu(
+        command, "Select a Device", [(x["name"], x["name"]) for x in dev_list]
+    )
+    return False
+
+
 @job("default")
 def cisco_meraki(subcommand, **kwargs):
     """Interact with Meraki."""
@@ -181,10 +190,24 @@ def get_networks(dispatcher, org_name=None):
 @subcommand_of("meraki")
 def get_switchports(dispatcher, org_name=None, device_name=None):
     """Query the Meraki Dashboard API for a list of switch ports."""
+    # if not org_name:
+    #     dispatcher.send_warning("Organization Name is required. Use `/meraki get-organizations`")
+    # if not device_name:
+    #     dispatcher.send_warning("Device Name is required. Use `/meraki get-devices`")
+
+    ## TEST MULTI DROP DOWNS
+    logger.info(f"ORG NAME: {org_name}")
     if not org_name:
-        dispatcher.send_warning("Organization Name is required. Use `/meraki get-organizations`")
+        return prompt_for_organization(dispatcher, "meraki get-switchports")
+    #dispatcher.send_markdown(
+    #    f"Stand by {dispatcher.user_mention()}, I'm getting the Organizations {org_name}!"
+    #)
     if not device_name:
-        dispatcher.send_warning("Device Name is required. Use `/meraki get-devices`")
+        return prompt_for_device(dispatcher, f"meraki get-switchports {org_name}")
+    #dispatcher.send_markdown(
+    #    f"Stand by {dispatcher.user_mention()}, I'm getting the admins for the Organization {org_name}!"
+    #)
+    ####
     dispatcher.send_markdown(
         f"Stand by {dispatcher.user_mention()}, I'm getting the switchports from {device_name}!"
     )
