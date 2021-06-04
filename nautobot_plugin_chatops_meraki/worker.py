@@ -46,9 +46,7 @@ def prompt_for_device(dispatcher, command, org, dev_type=None):
         )
         return False
     dev_list = parse_device_list(dev_type, get_meraki_devices(org))
-    dispatcher.prompt_from_menu(
-        command, "Select a Device", [(dev, dev) for dev in dev_list]
-    )
+    dispatcher.prompt_from_menu(command, "Select a Device", [(dev, dev) for dev in dev_list])
     return False
 
 
@@ -96,7 +94,7 @@ def get_organizations(dispatcher):
 @subcommand_of("meraki")
 def get_admins(dispatcher, org_name=None):
     """Based on an Organization Name Return the Admins."""
-    logger.info(f"ORG NAME: {org_name}")
+    logger.info("ORG NAME: %s", org_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-admins")
     dispatcher.send_markdown(
@@ -114,14 +112,14 @@ def get_admins(dispatcher, org_name=None):
 @subcommand_of("meraki")
 def get_devices(dispatcher, org_name=None, device_type=None):
     """Gathers devices from Meraki API endpoint."""
-    logger.info(f"ORG NAME: {org_name}")
-    logger.info(f"DEVICE TYPE: {device_type}")
+    logger.info("ORG NAME: %s", org_name)
+    logger.info("DEVICE TYPE: %s", device_type)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-devices")
     if not device_type:
         dispatcher.prompt_from_menu(f"meraki get-devices '{org_name}'", "Select a Device Type", DEVICE_TYPES)
         return False
-    logger.info(f"Translated Device Type: {device_type}")
+    logger.info("Translated Device Type: %s", device_type)
     devices = get_meraki_devices(org_name)
     devices_result = parse_device_list(device_type, devices)
     if len(devices_result) > 0:
@@ -140,7 +138,7 @@ def get_devices(dispatcher, org_name=None, device_type=None):
 @subcommand_of("meraki")
 def get_networks(dispatcher, org_name=None):
     """Gathers networks from Meraki API endpoint."""
-    logger.info(f"ORG NAME: {org_name}")
+    logger.info("ORG NAME: %s", org_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-networks")
     dispatcher.send_markdown(
@@ -158,8 +156,8 @@ def get_networks(dispatcher, org_name=None):
 @subcommand_of("meraki")
 def get_switchports(dispatcher, org_name=None, device_name=None):
     """Query the Meraki Dashboard API for a list of switch ports."""
-    logger.info(f"ORG NAME: {org_name}")
-    logger.info(f"DEVICE NAME: {device_name}")
+    logger.info("ORG NAME: %s", org_name)
+    logger.info("DEVICE NAME: %s", device_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-switchports")
     if not device_name:
@@ -211,8 +209,8 @@ def get_switchports(dispatcher, org_name=None, device_name=None):
 @subcommand_of("meraki")
 def get_firewall_performance(dispatcher, org_name=None, device_name=None):
     """Query Meraki with a firewall to device performance."""
-    logger.info(f"ORG NAME: {org_name}")
-    logger.info(f"DEVICE NAME: {device_name}")
+    logger.info("ORG NAME: %s", org_name)
+    logger.info("DEVICE NAME: %s", device_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-firewall-performance")
     if not device_name:
@@ -232,8 +230,8 @@ def get_firewall_performance(dispatcher, org_name=None, device_name=None):
 @subcommand_of("meraki")
 def get_network_ssids(dispatcher, org_name=None, net_name=None):
     """Query Meraki for all SSIDs for a given Network."""
-    logger.info(f"ORG NAME: {org_name}")
-    logger.info(f"NETWORK NAME: {net_name}")
+    logger.info("ORG NAME: %s", org_name)
+    logger.info("NETWORK NAME: %s", net_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-network-ssids")
     if not net_name:
@@ -251,8 +249,8 @@ def get_network_ssids(dispatcher, org_name=None, net_name=None):
 @subcommand_of("meraki")
 def get_camera_recent(dispatcher, org_name=None, device_name=None):
     """Query Meraki Recent Camera Analytics."""
-    logger.info(f"ORG NAME: {org_name}")
-    logger.info(f"DEVICE NAME: {device_name}")
+    logger.info("ORG NAME: %s", org_name)
+    logger.info("DEVICE NAME: %s", device_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-camera-recent")
     if not device_name:
@@ -288,8 +286,8 @@ def get_camera_recent(dispatcher, org_name=None, device_name=None):
 @subcommand_of("meraki")
 def get_clients(dispatcher, org_name=None, device_name=None):
     """Query Meraki for List of Clients."""
-    logger.info(f"ORG NAME: {org_name}")
-    logger.info(f"DEVICE NAME: {device_name}")
+    logger.info("ORG NAME: %s", org_name)
+    logger.info("DEVICE NAME: %s", device_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-clients")
     if not device_name:
@@ -318,8 +316,8 @@ def get_clients(dispatcher, org_name=None, device_name=None):
 @subcommand_of("meraki")
 def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
     """Query Meraki for List of Clients."""
-    logger.info(f"ORG NAME: {org_name}")
-    logger.info(f"DEVICE NAME: {device_name}")
+    logger.info("ORG NAME: %s", org_name)
+    logger.info("DEVICE NAME: %s", device_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-lldp-cdp")
     if not device_name:
@@ -341,7 +339,13 @@ def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
                     print("inside lldp")
                     print(dp_vals)
                     table_data.append(
-                        (key, dp_type, dp_vals.get("systemName"), dp_vals.get("portId"), dp_vals.get("managementAddress"))
+                        (
+                            key,
+                            dp_type,
+                            dp_vals.get("systemName"),
+                            dp_vals.get("portId"),
+                            dp_vals.get("managementAddress"),
+                        )
                     )
                 else:
                     print(dp_type)
