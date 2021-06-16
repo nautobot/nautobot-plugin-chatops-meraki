@@ -11,7 +11,7 @@ An extension for [Nautobot](https://github.com/nautobot/nautobot) [Chatops Plugi
 | **main** | [![Build Status](https://travis-ci.com/networktocode-llc/nautobot-chatops-extension-meraki.svg?token=BknroZ7vxquiYcUvP8RC&branch=main)](https://travis-ci.com/networktocode-llc/nautobot-chatops-extension-meraki) |
 | **develop** | [![Build Status](https://travis-ci.com/networktocode-llc/nautobot-chatops-extension-meraki.svg?token=BknroZ7vxquiYcUvP8RC&branch=develop)](https://travis-ci.com/networktocode-llc/nautobot-chatops-extension-meraki) |
 
-The extension is available as a Python package in PyPI and can be installed with pip
+The extension can be installed with pip
 
 ```shell
 pip install git+https://github.com/networktocode-llc/nautobot-chatops-extension-meraki.git
