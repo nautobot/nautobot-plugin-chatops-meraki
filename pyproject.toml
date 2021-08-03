@@ -5,8 +5,8 @@ description = "Nautobot Chatops Cisco Meraki Integration"
 authors = ["Network to Code <opensource@networktocode.com>"]
 
 readme = "README.md"
-homepage = "https://github.com/networktocode-llc/nautobot-chatops-extension-meraki.git"
-repository = "https://github.com/networktocode-llc/nautobot-chatops-extension-meraki.git"
+homepage = "https://github.com/networktocode-llc/nautobot-plugin-chatops-meraki.git"
+repository = "https://github.com/networktocode-llc/nautobot-plugin-chatops-meraki.git"
 keywords = ["nautobot", "nautobot-plugin"]
 include = [
     "README.md",
