@@ -5,9 +5,9 @@ about: Propose a new feature or enhancement
 ---
 
 ### Environment
-* Python version:  <!-- Example: 3.7.7 -->
-* Nautobot version:  <!-- Example: 2.8.4 -->
-* nautobot-plugin-chatops-meraki version:  <!-- Example: 1.0.0 -->
+* Nautobot version:  <!-- Example: {{cookiecutter.min_nautobot_version}} -->
+* Nautobot Chatops Plugin version:  <!-- Example: 1.3.0 -->
+* {{cookiecutter.plugin_slug}} version:  <!-- Example: {{cookiecutter.version}} -->
 
 <!--
     Describe in detail the new functionality you are proposing.
