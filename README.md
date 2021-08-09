@@ -7,7 +7,7 @@ A plugin for [Nautobot](https://github.com/nautobot/nautobot).
 The plugin is available as a Python package in pypi and can be installed with pip
 
 ```shell
-pip install nautobot-plugin-chatops-meraki
+pip install git+https://github.com/networktocode-llc/nautobot-plugin-chatops-meraki.git
 ```
 
 > The plugin is compatible with Nautobot 1.0.1 and higher
@@ -18,7 +18,7 @@ To ensure Nautobot Plugin Chatops Meraki is automatically re-installed during fu
 # echo nautobot-plugin-chatops-meraki >> local_requirements.txt
 ```
 
-Once installed, the plugin needs to be enabled in your `nautobot_configuration.py`
+Once installed, the plugin needs to be enabled in your `nautobot_config.py`
 
 ```python
 # In your configuration.py
@@ -28,21 +28,34 @@ PLUGINS_CONFIG = {
   "nautobot_chatops": {
     # ADD SLACK/MS-TEAMS/WEBEX-TEAMS/MATTERMOST SETTINGS HERE
   }
-  "nautobot_plugin_chatops_meraki": {
-    # ADD YOUR SETTINGS HERE
-  }
 }
 ```
 
-The plugin behavior can be controlled with the following list of settings
+The plugin requires the following list of environment variables to be added into the environment.
 
-- TODO
+- `MERAKI_DASHBOARD_API_KEY`: Is set to the dashboard API key. See [Meraki Dashboard API Documentation](https://documentation.meraki.com/General_Administration/Other_Topics/Cisco_Meraki_Dashboard_API).
+
 
 ## Usage
 
-### API
+### Command Setup
+Add a slash command to Slack called `/meraki`.
+See the [nautobot-chatops installation guide](https://github.com/nautobot/nautobot-plugin-chatops/blob/develop/docs/chat_setup.md) for instructions on adding a slash command to your Slack channel.
 
-TODO
+You may need to adjust your [Access Grants in Nautobot](https://github.com/nautobot/nautobot-plugin-chatops/blob/develop/docs/chat_setup.md#grant-access-to-the-chatbot) depending on your security requirements.
+
+The following commands are available:
+
+- `/meraki get-organizations`:  Gather all the Meraki Organizations.
+- `/meraki get-admins [org-name]`: Based on an Organization Name Return the Admins.
+- `/meraki get-devices [org-name] [device-type]`: Gathers devices from Meraki.
+- `/meraki get-networks [org-name]`: Gathers networks from Meraki.
+- `/meraki get-switchports [org-name] [device-name]`: Gathers switch ports from a MS switch device.
+- `/meraki get-firewall-performance [org-name] [device-name]`: Query Meraki with a firewall to device performance.
+- `/meraki get-network-ssids [org-name] [net-name]`: Query Meraki for all SSIDs for a given Network.
+- `/meraki get-camera-recent [org-name] [device-name]`: Query Meraki Recent Camera Analytics.
+- `/meraki get-clients [org-name] [device-name]`: Query Meraki for List of Clients.
+- `/meraki get-lldp-cdp [org-name] [device-name]`: Query Meraki for List of LLDP or CDP Neighbors.
 
 ## Contributing
 

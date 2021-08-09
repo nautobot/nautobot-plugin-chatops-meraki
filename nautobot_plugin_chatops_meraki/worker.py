@@ -111,7 +111,7 @@ def get_admins(dispatcher, org_name=None):
 
 @subcommand_of("meraki")
 def get_devices(dispatcher, org_name=None, device_type=None):
-    """Gathers devices from Meraki API endpoint."""
+    """Gathers devices from Meraki."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE TYPE: %s", device_type)
     if not org_name:
@@ -137,7 +137,7 @@ def get_devices(dispatcher, org_name=None, device_type=None):
 
 @subcommand_of("meraki")
 def get_networks(dispatcher, org_name=None):
-    """Gathers networks from Meraki API endpoint."""
+    """Gathers networks from Meraki."""
     LOGGER.info("ORG NAME: %s", org_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-networks")
@@ -155,7 +155,7 @@ def get_networks(dispatcher, org_name=None):
 
 @subcommand_of("meraki")
 def get_switchports(dispatcher, org_name=None, device_name=None):
-    """Query the Meraki Dashboard API for a list of switch ports."""
+    """Gathers switch ports from a MS switch device."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE NAME: %s", device_name)
     if not org_name:
@@ -315,7 +315,7 @@ def get_clients(dispatcher, org_name=None, device_name=None):
 
 @subcommand_of("meraki")
 def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
-    """Query Meraki for List of Clients."""
+    """Query Meraki for List of LLDP or CDP Neighbors."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE NAME: %s", device_name)
     if not org_name:
