@@ -1,13 +1,13 @@
 ---
 name: 🐛 Bug Report
-about: Report a reproducible bug in the current release of {{cookiecutter.plugin_slug}}
+about: Report a reproducible bug in the current release of nautobot-plugin-chatops-meraki
 ---
 
 ### Environment
 * Python version:  <!-- Example: 3.7.7 -->
-* Nautobot version:  <!-- Example: {{cookiecutter.min_nautobot_version}} -->
+* Nautobot version:  <!-- Example: 1.0.1 -->
 * Nautobot Chatops Plugin version:  <!-- Example: 1.3.0 -->
-* {{cookiecutter.plugin_slug}} version:  <!-- Example: {{cookiecutter.version}} -->
+* nautobot-plugin-chatops-meraki version:  <!-- Example: 0.1.0 -->
 
 <!-- What did you expect to happen? -->
 ### Expected Behavior
