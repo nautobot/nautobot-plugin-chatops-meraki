@@ -78,18 +78,6 @@ def prompt_for_port(dispatcher, command, org, switch_name):
     return False
 
 
-def prompt_for_port_configuration(dispatcher, command):
-    dispatcher.multi_input_dialog(command, "", "Configureation Test", [{
-        "type": "select",
-        "label": "label",
-        "choices": [("Port Enabled", True), ("Port Disabled", False)],
-        "default": ("Port Enabled", True),
-        "confirm": False
-    }]
-    )
-    return False
-
-
 def parse_device_list(dev_type, devs):
     """Take a list of device and a type and returns only those device types."""
     meraki_dev_mapper = {
@@ -425,25 +413,56 @@ def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
 
 
 @subcommand_of("meraki")
-def configure_basic_access_port(dispatcher, org_name=None, device_name=None, port_number=None, config_params=None):
-    """Configure an access port with description, VLAN, VoiceVLAN and status."""
-    LOGGER.info("ORG NAME: %s", org_name)
-    LOGGER.info("DEVICE NAME: %s", device_name)
-    LOGGER.info("PORT NUMBER: %s", port_number)
-    LOGGER.info("PORT CONFIG PARMAS: %s", config_params)
-    if not org_name:
-        return prompt_for_organization(dispatcher, "meraki configure-basic-access-port")
-    if not device_name:
-        return prompt_for_device(dispatcher, f"meraki configure-basic-access-port {org_name}", org_name, dev_type="switches")
-    if not port_number:
-        return prompt_for_port(dispatcher, f"meraki configure-basic-access-port {org_name} {device_name}", org_name, device_name)
-    # Figure out how to pass in configuration params.
-    # port_params = dict(name="Chatops Configured", enabled=True, type="access", vlan=100, voiceVlan=101)
-    if not config_params:
-        return prompt_for_port_configuration(dispatcher, f"meraki configure-basic-access-port {org_name} {device_name} {port_number} ")
-    LOGGER.info("PORT PARMS: %s", config_params)
+def configure_basic_access_port(dispatcher, org_name=None, device_name=None, port_number=None, enabled=None, vlan=None, port_desc=None):
+    """Configure an access port with description, VLAN and state."""
+    # LOGGER.info("ORG NAME: %s", org_name)
+    # LOGGER.info("DEVICE NAME: %s", device_name)
+    # LOGGER.info("PORT NUMBER: %s", port_number)
+    # LOGGER.info("PORT CONFIG PARMAS: %s", config_params)
+    # if not org_name:
+    #     return prompt_for_organization(dispatcher, "meraki configure-basic-access-port")
+    # if not device_name:
+    #     return prompt_for_device(dispatcher, f"meraki configure-basic-access-port {org_name}", org_name, dev_type="switches")
+    # if not port_number:
+    #     return prompt_for_port(dispatcher, f"meraki configure-basic-access-port {org_name} {device_name}", org_name, device_name)
+    # # Figure out how to pass in configuration params.
+    # # port_params = dict(name="Chatops Configured", enabled=True, type="access", vlan=100, voiceVlan=101)
+    # if not config_params:
+    #     return prompt_for_port_configuration(dispatcher, f"meraki configure-basic-access-port {org_name} {device_name} {port_number}")
+    if not (org_name and device_name and port_number and enabled and vlan and port_desc):
+        # if org_name == "":
+        #     org_name = None
+        #     dispatcher.send_warning("A Org Name must be specified")
+        # if device_name == "":
+        #     dispatcher.send_warning("A Device Name must be specified")
+        # if port_number == "":
+        #     dispatcher.send_warning("A Port Number must be specified")
+        if not org_name:
+            return prompt_for_organization(dispatcher, "meraki configure-basic-access-port")
+        if not device_name:
+            return prompt_for_device(dispatcher, f"meraki configure-basic-access-port {org_name}", org_name, dev_type="switches")
+        if not port_number:
+            return prompt_for_port(dispatcher, f"meraki configure-basic-access-port {org_name} {device_name}", org_name, device_name)
+        if enabled == "":
+            dispatcher.send_warning("Enable state must be specified")
+        if vlan == "":
+            dispatcher.send_warning("A VLAN must be specified")
+        if port_desc == "":
+            dispatcher.send_warning("A Port Description must be specified")
+        dialog_list = [
+            {"type": "select", "label": "Port Enabled Status", "choices": [("Port Enabled", True), ("Port Disabled", False)], "default": ("Port Enabled", True)},
+            {"type": "text", "label": "VLAN", "default": ""},
+            {"type": "text", "label": "Port Description", "default": ""},
+        ]
+        # dialog title must be less than 25 characters
+        dispatcher.multi_input_dialog(
+            "meraki", "configure-basic-access-port", dialog_title="Port Configuration", dialog_list=dialog_list
+        )
+        return False
+    port_params = dict(name=port_desc, enabled=enabled, type="access", vlan=vlan)
+    LOGGER.info("PORT PARMS: %s", port_params)
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm configuring port {port_number} on {device_name}!")
-    result = update_meraki_switch_port(org_name, device_name, port_number, **config_params)
+    result = update_meraki_switch_port(org_name, device_name, port_number, **port_params)
     blocks = [
         dispatcher.markdown_block(f"{dispatcher.user_mention()} The port has been configured, here is the current configuration."),
         dispatcher.markdown_block("\n".join([f"{key}: {value}" for key, value in result.items()])),
