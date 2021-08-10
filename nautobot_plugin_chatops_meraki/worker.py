@@ -72,9 +72,7 @@ def prompt_for_network(dispatcher, command, org):
 def prompt_for_port(dispatcher, command, org, switch_name):
     """Prompt the user to select a port from a switch."""
     ports = get_meraki_switchports(org, switch_name)
-    dispatcher.prompt_from_menu(
-        command, "Select a Port", [(port["portId"], port["portId"]) for port in ports]
-    )
+    dispatcher.prompt_from_menu(command, "Select a Port", [(port["portId"], port["portId"]) for port in ports])
     return False
 
 
@@ -234,7 +232,9 @@ def get_switchports_status(dispatcher, org_name=None, device_name=None):
         return prompt_for_organization(dispatcher, "meraki get-switchports-status")
     if not device_name:
         return prompt_for_device(dispatcher, f"meraki get-switchports-status {org_name}", org_name, dev_type="switches")
-    dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the switchports status from {device_name}!")
+    dispatcher.send_markdown(
+        f"Stand by {dispatcher.user_mention()}, I'm getting the switchports status from {device_name}!"
+    )
     ports = get_meraki_switchports_status(org_name, device_name)
     dispatcher.send_large_table(
         [
@@ -413,14 +413,20 @@ def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
 
 
 @subcommand_of("meraki")
-def configure_basic_access_port(dispatcher, org_name=None, device_name=None, port_number=None, enabled=None, vlan=None, port_desc=None):
+def configure_basic_access_port(  # pylint: disable=too-many-arguments
+    dispatcher, org_name=None, device_name=None, port_number=None, enabled=None, vlan=None, port_desc=None
+):
     """Configure an access port with description, VLAN and state."""
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki configure-basic-access-port")
     if not device_name:
-        return prompt_for_device(dispatcher, f"meraki configure-basic-access-port {org_name}", org_name, dev_type="switches")
+        return prompt_for_device(
+            dispatcher, f"meraki configure-basic-access-port {org_name}", org_name, dev_type="switches"
+        )
     if not port_number:
-        return prompt_for_port(dispatcher, f"meraki configure-basic-access-port {org_name} {device_name}", org_name, device_name)
+        return prompt_for_port(
+            dispatcher, f"meraki configure-basic-access-port {org_name} {device_name}", org_name, device_name
+        )
     if not (enabled and vlan and port_desc):
         if not enabled:
             dispatcher.send_warning("Enable state must be specified")
@@ -429,21 +435,32 @@ def configure_basic_access_port(dispatcher, org_name=None, device_name=None, por
         if not port_desc:
             dispatcher.send_warning("A Port Description must be specified")
         dialog_list = [
-            {"type": "select", "label": "Port Enabled Status", "choices": [("Port Enabled", "True"), ("Port Disabled", "False")], "default": ("Port Enabled", "True")},
+            {
+                "type": "select",
+                "label": "Port Enabled Status",
+                "choices": [("Port Enabled", "True"), ("Port Disabled", "False")],
+                "default": ("Port Enabled", "True"),
+            },
             {"type": "text", "label": "VLAN", "default": ""},
             {"type": "text", "label": "Port Description", "default": ""},
         ]
-        # dialog title must be less than 25 characters
         dispatcher.multi_input_dialog(
-            "meraki", f"configure-basic-access-port {org_name} {device_name} {port_number}", dialog_title="Port Configuration", dialog_list=dialog_list
+            "meraki",
+            f"configure-basic-access-port {org_name} {device_name} {port_number}",
+            dialog_title="Port Configuration",
+            dialog_list=dialog_list,
         )
         return False
     port_params = dict(name=port_desc, enabled=bool(enabled), type="access", vlan=vlan)
     LOGGER.info("PORT PARMS: %s", port_params)
-    dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm configuring port {port_number} on {device_name}!")
+    dispatcher.send_markdown(
+        f"Stand by {dispatcher.user_mention()}, I'm configuring port {port_number} on {device_name}!"
+    )
     result = update_meraki_switch_port(org_name, device_name, port_number, **port_params)
     blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} The port has been configured, here is the current configuration."),
+        dispatcher.markdown_block(
+            f"{dispatcher.user_mention()} The port has been configured, here is the current configuration."
+        ),
         dispatcher.markdown_block("\n".join([f"{key}: {value}" for key, value in result.items()])),
     ]
     dispatcher.send_blocks(blocks)
