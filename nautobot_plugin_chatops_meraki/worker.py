@@ -437,7 +437,7 @@ def configure_basic_access_port(dispatcher, org_name=None, device_name=None, por
         dispatcher.multi_input_dialog(
             "meraki", "configure-basic-access-port", dialog_title="Port Configuration", dialog_list=dialog_list
         )
-        return True
+        return False
     port_params = dict(name=port_desc, enabled=bool(enabled), type="access", vlan=vlan)
     LOGGER.info("PORT PARMS: %s", port_params)
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm configuring port {port_number} on {device_name}!")
