@@ -421,11 +421,11 @@ def configure_basic_access_port(dispatcher, org_name=None, device_name=None, por
     LOGGER.info("DEVICE NAME: %s", device_name)
     LOGGER.info("PORT NUMBER: %s", port_number)
     if not org_name:
-        return prompt_for_organization(dispatcher, "meraki update-switchport")
+        return prompt_for_organization(dispatcher, "meraki configure-basic-access-port")
     if not device_name:
-        return prompt_for_device(dispatcher, f"meraki update-switchport {org_name}", org_name, dev_type="switches")
+        return prompt_for_device(dispatcher, f"meraki configure-basic-access-port {org_name}", org_name, dev_type="switches")
     if not port_number:
-        return prompt_for_port(dispatcher, f"meraki update-switchport {org_name} {device_name}", org_name, device_name)
+        return prompt_for_port(dispatcher, f"meraki configure-basic-access-port {org_name} {device_name}", org_name, device_name)
     # Figure out how to pass in configuration params.
     port_params = dict(name="Chatops Configured", enabled=True, type="access", vlan=10, voiceVlan=100)
     LOGGER.info("ORG NAME: %s", org_name)
