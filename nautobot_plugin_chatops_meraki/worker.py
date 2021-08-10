@@ -435,7 +435,7 @@ def configure_basic_access_port(dispatcher, org_name=None, device_name=None, por
         ]
         # dialog title must be less than 25 characters
         dispatcher.multi_input_dialog(
-            "meraki", "configure-basic-access-port", dialog_title="Port Configuration", dialog_list=dialog_list
+            "meraki", f"configure-basic-access-port {org_name} {device_name} {port_number}", dialog_title="Port Configuration", dialog_list=dialog_list
         )
         return False
     port_params = dict(name=port_desc, enabled=bool(enabled), type="access", vlan=vlan)
