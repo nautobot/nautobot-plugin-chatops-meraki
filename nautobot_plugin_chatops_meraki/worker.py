@@ -254,13 +254,15 @@ def get_switchports_status(dispatcher, org_name=None, device_name=None):
                 entry["portId"],
                 entry["enabled"],
                 entry["status"],
-                entry["errors"],
-                entry["warnings"],
+                "\n".join(entry["errors"]),
+                "\n".join(entry["warnings"]),
                 entry["speed"],
                 entry["duplex"],
-                entry["usageInKb"],
+                # entry["usageInKb"],
+                "\n".join([f"{key}: {value}" for key, value in entry["usageInKb"].items()]),
                 entry["clientCount"],
-                entry["trafficInKbps"],
+                # entry["trafficInKbps"],
+                "\n".join([f"{key}: {value}" for key, value in entry["trafficInKbps"].items()]),
             )
             for entry in ports
         ],
@@ -413,8 +415,35 @@ def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
 
 
 @subcommand_of("meraki")
-def update_switchport(dispatcher, org_name=None, device_name=None, port_number=None):
-    """Updates switch port configuration on a MS switch device."""
+def configure_basic_access_port(dispatcher, org_name=None, device_name=None, port_number=None):
+    """Configure an access port with description, VLAN, VoiceVLAN and status."""
+    LOGGER.info("ORG NAME: %s", org_name)
+    LOGGER.info("DEVICE NAME: %s", device_name)
+    LOGGER.info("PORT NUMBER: %s", port_number)
+    if not org_name:
+        return prompt_for_organization(dispatcher, "meraki update-switchport")
+    if not device_name:
+        return prompt_for_device(dispatcher, f"meraki update-switchport {org_name}", org_name, dev_type="switches")
+    if not port_number:
+        return prompt_for_port(dispatcher, f"meraki update-switchport {org_name} {device_name}", org_name, device_name)
+    # Figure out how to pass in configuration params.
+    port_params = dict(name="Chatops Configured", enabled=True, type="access", vlan=10, voiceVlan=100)
+    LOGGER.info("ORG NAME: %s", org_name)
+    LOGGER.info("DEVICE NAME: %s", device_name)
+    LOGGER.info("PORT NUMBER: %s", port_number)    
+    dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm configuring port {port_number} on {device_name}!")
+    result = update_meraki_switch_port(org_name, device_name, port_number, **port_params)
+    blocks = [
+        dispatcher.markdown_block(f"{dispatcher.user_mention()} The port has been configured."),
+        dispatcher.markdown_block(result),
+    ]
+    dispatcher.send_blocks(blocks)
+    return CommandStatusChoices.STATUS_SUCCEEDED
+
+
+@subcommand_of("meraki")
+def add_allowed_vlan_trunkport(dispatcher, org_name=None, device_name=None, port_number=None):
+    """Add to the allowed VLAN list on a trunk port."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE NAME: %s", device_name)
     LOGGER.info("PORT NUMBER: %s", port_number)
@@ -431,6 +460,13 @@ def update_switchport(dispatcher, org_name=None, device_name=None, port_number=N
     LOGGER.info("PORT NUMBER: %s", port_number)    
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm configuring port {port_number} on {device_name}!")
     result = update_meraki_switch_port(org_name, device_name, port_number, **port_params)
+    """switch, updateDeviceSwitchPort - 400 Bad Request, {'errors': ["Error for /devices/{serial}/switch/ports/{portId}: 
+    None of the fields 
+    ('name', 'tags', 'enabled', 'type', 'vlan', 'voiceVlan', 'allowedVlans', 'poeEnabled', 'isolationEnabled', 'rstpEnabled', 
+    'stpGuard', 'linkNegotiation', 'portScheduleId', 'udld', 'accessPolicyType', 'accessPolicyNumber', 'macAllowList', 
+    'stickyMacAllowList', 'stickyMacAllowListLimit', 'stormControlEnabled' or 'flexibleStackingEnabled')
+    were specified."]}
+    """
     blocks = [
         dispatcher.markdown_block(f"{dispatcher.user_mention()} The port has been configured."),
         dispatcher.markdown_block(result),

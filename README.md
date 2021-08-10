@@ -27,11 +27,14 @@ PLUGINS = ["nautobot_chatops", "nautobot_plugin_chatops_meraki"]
 PLUGINS_CONFIG = {
   "nautobot_chatops": {
     # ADD SLACK/MS-TEAMS/WEBEX-TEAMS/MATTERMOST SETTINGS HERE
+  },
+  "nautobot_plugin_chatops_meraki": {
+      "meraki_api_key": os.getenv("MERAKI_DASHBOARD_API_KEY", ""),
   }
 }
 ```
 
-The plugin requires the following list of environment variables to be added into the environment.
+The plugin behavior can be controlled with the following list of settings
 
 - `MERAKI_DASHBOARD_API_KEY`: Is set to the dashboard API key. See [Meraki Dashboard API Documentation](https://documentation.meraki.com/General_Administration/Other_Topics/Cisco_Meraki_Dashboard_API).
 
