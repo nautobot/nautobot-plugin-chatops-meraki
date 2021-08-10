@@ -425,11 +425,12 @@ def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
 
 
 @subcommand_of("meraki")
-def configure_basic_access_port(dispatcher, org_name=None, device_name=None, port_number=None):
+def configure_basic_access_port(dispatcher, org_name=None, device_name=None, port_number=None, config_params=None):
     """Configure an access port with description, VLAN, VoiceVLAN and status."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE NAME: %s", device_name)
     LOGGER.info("PORT NUMBER: %s", port_number)
+    LOGGER.info("PORT CONFIG PARMAS: %s", config_params)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki configure-basic-access-port")
     if not device_name:
@@ -438,10 +439,11 @@ def configure_basic_access_port(dispatcher, org_name=None, device_name=None, por
         return prompt_for_port(dispatcher, f"meraki configure-basic-access-port {org_name} {device_name}", org_name, device_name)
     # Figure out how to pass in configuration params.
     # port_params = dict(name="Chatops Configured", enabled=True, type="access", vlan=100, voiceVlan=101)
-    port_params = prompt_for_port_configuration(dispatcher, f"meraki configure-basic-access-port {org_name} {device_name} {port_number}")
-    LOGGER.info("PORT PARMS: %s", port_params)
+    if not config_params:
+        return prompt_for_port_configuration(dispatcher, f"meraki configure-basic-access-port {org_name} {device_name} {port_number} ")
+    LOGGER.info("PORT PARMS: %s", config_params)
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm configuring port {port_number} on {device_name}!")
-    result = update_meraki_switch_port(org_name, device_name, port_number, **port_params)
+    result = update_meraki_switch_port(org_name, device_name, port_number, **config_params)
     blocks = [
         dispatcher.markdown_block(f"{dispatcher.user_mention()} The port has been configured, here is the current configuration."),
         dispatcher.markdown_block("\n".join([f"{key}: {value}" for key, value in result.items()])),
