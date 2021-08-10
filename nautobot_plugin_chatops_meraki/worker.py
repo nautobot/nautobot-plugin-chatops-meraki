@@ -415,20 +415,6 @@ def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
 @subcommand_of("meraki")
 def configure_basic_access_port(dispatcher, org_name=None, device_name=None, port_number=None, enabled=None, vlan=None, port_desc=None):
     """Configure an access port with description, VLAN and state."""
-    # LOGGER.info("ORG NAME: %s", org_name)
-    # LOGGER.info("DEVICE NAME: %s", device_name)
-    # LOGGER.info("PORT NUMBER: %s", port_number)
-    # LOGGER.info("PORT CONFIG PARMAS: %s", config_params)
-    # if not org_name:
-    #     return prompt_for_organization(dispatcher, "meraki configure-basic-access-port")
-    # if not device_name:
-    #     return prompt_for_device(dispatcher, f"meraki configure-basic-access-port {org_name}", org_name, dev_type="switches")
-    # if not port_number:
-    #     return prompt_for_port(dispatcher, f"meraki configure-basic-access-port {org_name} {device_name}", org_name, device_name)
-    # # Figure out how to pass in configuration params.
-    # # port_params = dict(name="Chatops Configured", enabled=True, type="access", vlan=100, voiceVlan=101)
-    # if not config_params:
-    #     return prompt_for_port_configuration(dispatcher, f"meraki configure-basic-access-port {org_name} {device_name} {port_number}")
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki configure-basic-access-port")
     if not device_name:
@@ -436,13 +422,6 @@ def configure_basic_access_port(dispatcher, org_name=None, device_name=None, por
     if not port_number:
         return prompt_for_port(dispatcher, f"meraki configure-basic-access-port {org_name} {device_name}", org_name, device_name)
     if not (enabled and vlan and port_desc):
-        # if org_name == "":
-        #     org_name = None
-        #     dispatcher.send_warning("A Org Name must be specified")
-        # if device_name == "":
-        #     dispatcher.send_warning("A Device Name must be specified")
-        # if port_number == "":
-        #     dispatcher.send_warning("A Port Number must be specified")
         if not enabled:
             dispatcher.send_warning("Enable state must be specified")
         if not vlan:
@@ -450,7 +429,7 @@ def configure_basic_access_port(dispatcher, org_name=None, device_name=None, por
         if not port_desc:
             dispatcher.send_warning("A Port Description must be specified")
         dialog_list = [
-            {"type": "select", "label": "Port Enabled Status", "choices": [("Port Enabled", True), ("Port Disabled", False)], "default": ("Port Enabled", True)},
+            {"type": "select", "label": "Port Enabled Status", "choices": [("Port Enabled", "True"), ("Port Disabled", "False")], "default": ("Port Enabled", "True")},
             {"type": "text", "label": "VLAN", "default": ""},
             {"type": "text", "label": "Port Description", "default": ""},
         ]
@@ -459,7 +438,7 @@ def configure_basic_access_port(dispatcher, org_name=None, device_name=None, por
             "meraki", "configure-basic-access-port", dialog_title="Port Configuration", dialog_list=dialog_list
         )
         return False
-    port_params = dict(name=port_desc, enabled=enabled, type="access", vlan=vlan)
+    port_params = dict(name=port_desc, enabled=bool(enabled), type="access", vlan=vlan)
     LOGGER.info("PORT PARMS: %s", port_params)
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm configuring port {port_number} on {device_name}!")
     result = update_meraki_switch_port(org_name, device_name, port_number, **port_params)
