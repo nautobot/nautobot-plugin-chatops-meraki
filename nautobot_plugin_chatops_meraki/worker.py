@@ -443,11 +443,11 @@ def configure_basic_access_port(dispatcher, org_name=None, device_name=None, por
             return prompt_for_device(dispatcher, f"meraki configure-basic-access-port {org_name}", org_name, dev_type="switches")
         if not port_number:
             return prompt_for_port(dispatcher, f"meraki configure-basic-access-port {org_name} {device_name}", org_name, device_name)
-        if enabled == "":
+        if not enabled:
             dispatcher.send_warning("Enable state must be specified")
-        if vlan == "":
+        if not vlan:
             dispatcher.send_warning("A VLAN must be specified")
-        if port_desc == "":
+        if not port_desc:
             dispatcher.send_warning("A Port Description must be specified")
         dialog_list = [
             {"type": "select", "label": "Port Enabled Status", "choices": [("Port Enabled", True), ("Port Disabled", False)], "default": ("Port Enabled", True)},
