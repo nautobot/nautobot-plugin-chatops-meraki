@@ -79,15 +79,14 @@ def prompt_for_port(dispatcher, command, org, switch_name):
 
 
 def prompt_for_port_configuration(dispatcher, command):
-    dispatcher.multi_input_dialog(command, {
+    dispatcher.multi_input_dialog(command, "", "Configureation Test", [{
         "type": "select",
         "label": "label",
         "choices": [("Port Enabled", True), ("Port Disabled", False)],
         "default": ("Port Enabled", True),
         "confirm": False
-    }
+    }]
     )
-
     return False
 
 
