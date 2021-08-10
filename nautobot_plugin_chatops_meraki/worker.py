@@ -11,12 +11,17 @@ from .utils import (
     get_meraki_devices,
     get_meraki_networks_by_org,
     get_meraki_switchports,
+    get_meraki_switchports_status,
     get_meraki_firewall_performance,
     get_meraki_network_ssids,
     get_meraki_camera_recent,
     get_meraki_device_clients,
     get_meraki_device_lldpcdp,
+    update_meraki_switch_port,
 )
+
+MERAKI_LOGO_PATH = "nautobot_meraki/Meraki_Logo.png"
+MERAKI_LOGO_ALT = "Meraki Logo"
 
 LOGGER = logging.getLogger("nautobot_plugin_chatops_meraki")
 
@@ -28,6 +33,11 @@ DEVICE_TYPES = [
     ("firewalls", "firewalls"),
     ("switches", "switches"),
 ]
+
+
+def meraki_logo(dispatcher):
+    """Construct an image_element containing the locally hosted Meraki logo."""
+    return dispatcher.image_element(dispatcher.static_url(MERAKI_LOGO_PATH), alt_text=MERAKI_LOGO_ALT)
 
 
 def prompt_for_organization(dispatcher, command):
@@ -55,6 +65,15 @@ def prompt_for_network(dispatcher, command, org):
     net_list = get_meraki_networks_by_org(org)
     dispatcher.prompt_from_menu(
         command, "Select a Network", [(net["name"], net["name"]) for net in net_list if len(net["name"]) > 0]
+    )
+    return False
+
+
+def prompt_for_port(dispatcher, command, org, switch_name):
+    """Prompt the user to select a port from a switch."""
+    ports = get_meraki_switchports(org, switch_name)
+    dispatcher.prompt_from_menu(
+        command, "Select a Port", [(port["portId"], port["portId"]) for port in ports]
     )
     return False
 
@@ -207,6 +226,49 @@ def get_switchports(dispatcher, org_name=None, device_name=None):
 
 
 @subcommand_of("meraki")
+def get_switchports_status(dispatcher, org_name=None, device_name=None):
+    """Gathers switch ports from a MS switch device."""
+    LOGGER.info("ORG NAME: %s", org_name)
+    LOGGER.info("DEVICE NAME: %s", device_name)
+    if not org_name:
+        return prompt_for_organization(dispatcher, "meraki get-switchports-status")
+    if not device_name:
+        return prompt_for_device(dispatcher, f"meraki get-switchports-status {org_name}", org_name, dev_type="switches")
+    dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the switchports status from {device_name}!")
+    ports = get_meraki_switchports_status(org_name, device_name)
+    dispatcher.send_large_table(
+        [
+            "Port",
+            "Enabled",
+            "Status",
+            "Errors",
+            "Warnings",
+            "Speed",
+            "Duplex",
+            "Usage (Kb)",
+            "Client Count",
+            "Traffic In (Kbps)",
+        ],
+        [
+            (
+                entry["portId"],
+                entry["enabled"],
+                entry["status"],
+                entry["errors"],
+                entry["warnings"],
+                entry["speed"],
+                entry["duplex"],
+                entry["usageInKb"],
+                entry["clientCount"],
+                entry["trafficInKbps"],
+            )
+            for entry in ports
+        ],
+    )
+    return CommandStatusChoices.STATUS_SUCCEEDED
+
+
+@subcommand_of("meraki")
 def get_firewall_performance(dispatcher, org_name=None, device_name=None):
     """Query Meraki with a firewall to device performance."""
     LOGGER.info("ORG NAME: %s", org_name)
@@ -272,14 +334,6 @@ def get_camera_recent(dispatcher, org_name=None, device_name=None):
             for entry in camera_stats
         ],
     )
-    # dispatcher.send_blocks(
-    #     dispatcher.command_response_header(
-    #         “meraki”,
-    #         “get-camera-recent”,
-    #         [(“org_name”, f’“{org_name”‘), (“device”, f’“{device}“’)],
-    #         “Get Recent Camera …”
-    #     )
-    # )
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
@@ -355,4 +409,31 @@ def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
         )
     else:
         dispatcher.send_markdown(f"{dispatcher.user_mention()}, NO LLDP/CDP neighbors for {device_name}!")
+    return CommandStatusChoices.STATUS_SUCCEEDED
+
+
+@subcommand_of("meraki")
+def update_switchport(dispatcher, org_name=None, device_name=None, port_number=None):
+    """Updates switch port configuration on a MS switch device."""
+    LOGGER.info("ORG NAME: %s", org_name)
+    LOGGER.info("DEVICE NAME: %s", device_name)
+    LOGGER.info("PORT NUMBER: %s", port_number)
+    if not org_name:
+        return prompt_for_organization(dispatcher, "meraki update-switchport")
+    if not device_name:
+        return prompt_for_device(dispatcher, f"meraki update-switchport {org_name}", org_name, dev_type="switches")
+    if not port_number:
+        return prompt_for_port(dispatcher, f"meraki update-switchport {org_name} {device_name}", org_name, device_name)
+    # Figure out how to pass in configuration params.
+    port_params = {}
+    LOGGER.info("ORG NAME: %s", org_name)
+    LOGGER.info("DEVICE NAME: %s", device_name)
+    LOGGER.info("PORT NUMBER: %s", port_number)    
+    dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm configuring port {port_number} on {device_name}!")
+    result = update_meraki_switch_port(org_name, device_name, port_number, **port_params)
+    blocks = [
+        dispatcher.markdown_block(f"{dispatcher.user_mention()} The port has been configured."),
+        dispatcher.markdown_block(result),
+    ]
+    dispatcher.send_blocks(blocks)
     return CommandStatusChoices.STATUS_SUCCEEDED
