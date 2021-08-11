@@ -225,7 +225,7 @@ def get_switchports(dispatcher, org_name=None, device_name=None):
 
 @subcommand_of("meraki")
 def get_switchports_status(dispatcher, org_name=None, device_name=None):
-    """Gathers switch ports from a MS switch device."""
+    """Gathers switch ports status from a MS switch device."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE NAME: %s", device_name)
     if not org_name:
