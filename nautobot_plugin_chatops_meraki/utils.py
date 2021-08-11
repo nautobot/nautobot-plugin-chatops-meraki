@@ -43,9 +43,15 @@ def get_meraki_networks_by_org(org_name):
 
 
 def get_meraki_switchports(org_name, device_name):
-    """Query the Meraki Dashboard API for a list of Networks."""
+    """Query the Meraki Dashboard API for a list of Switchports for a Switch."""
     dashboard = meraki.DashboardAPI(suppress_logging=True)
     return dashboard.switch.getDeviceSwitchPorts(_name_to_serial(org_name, device_name))
+
+
+def get_meraki_switchports_status(org_name, device_name):
+    """Query Meraki for Port Status for a Switch."""
+    dashboard = meraki.DashboardAPI(suppress_logging=True)
+    return dashboard.switch.getDeviceSwitchPortsStatuses(_name_to_serial(org_name, device_name))
 
 
 def get_meraki_firewall_performance(org_name, device_name):
@@ -76,3 +82,9 @@ def get_meraki_device_lldpcdp(org_name, device_name):
     """Query Meraki for Clients."""
     dashboard = meraki.DashboardAPI(suppress_logging=True)
     return dashboard.devices.getDeviceLldpCdp(_name_to_serial(org_name, device_name))
+
+
+def update_meraki_switch_port(org_name, device_name, port, **kwargs):
+    """Update SwitchPort Configuration."""
+    dashboard = meraki.DashboardAPI(suppress_logging=True)
+    return dashboard.switch.updateDeviceSwitchPort(_name_to_serial(org_name, device_name), port, **kwargs)

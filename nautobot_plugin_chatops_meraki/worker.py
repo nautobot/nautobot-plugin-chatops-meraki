@@ -11,12 +11,17 @@ from .utils import (
     get_meraki_devices,
     get_meraki_networks_by_org,
     get_meraki_switchports,
+    get_meraki_switchports_status,
     get_meraki_firewall_performance,
     get_meraki_network_ssids,
     get_meraki_camera_recent,
     get_meraki_device_clients,
     get_meraki_device_lldpcdp,
+    update_meraki_switch_port,
 )
+
+MERAKI_LOGO_PATH = "nautobot_meraki/Meraki_Logo.png"
+MERAKI_LOGO_ALT = "Meraki Logo"
 
 LOGGER = logging.getLogger("nautobot_plugin_chatops_meraki")
 
@@ -28,6 +33,11 @@ DEVICE_TYPES = [
     ("firewalls", "firewalls"),
     ("switches", "switches"),
 ]
+
+
+def meraki_logo(dispatcher):
+    """Construct an image_element containing the locally hosted Meraki logo."""
+    return dispatcher.image_element(dispatcher.static_url(MERAKI_LOGO_PATH), alt_text=MERAKI_LOGO_ALT)
 
 
 def prompt_for_organization(dispatcher, command):
@@ -56,6 +66,13 @@ def prompt_for_network(dispatcher, command, org):
     dispatcher.prompt_from_menu(
         command, "Select a Network", [(net["name"], net["name"]) for net in net_list if len(net["name"]) > 0]
     )
+    return False
+
+
+def prompt_for_port(dispatcher, command, org, switch_name):
+    """Prompt the user to select a port from a switch."""
+    ports = get_meraki_switchports(org, switch_name)
+    dispatcher.prompt_from_menu(command, "Select a Port", [(port["portId"], port["portId"]) for port in ports])
     return False
 
 
@@ -111,7 +128,7 @@ def get_admins(dispatcher, org_name=None):
 
 @subcommand_of("meraki")
 def get_devices(dispatcher, org_name=None, device_type=None):
-    """Gathers devices from Meraki API endpoint."""
+    """Gathers devices from Meraki."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE TYPE: %s", device_type)
     if not org_name:
@@ -137,7 +154,7 @@ def get_devices(dispatcher, org_name=None, device_type=None):
 
 @subcommand_of("meraki")
 def get_networks(dispatcher, org_name=None):
-    """Gathers networks from Meraki API endpoint."""
+    """Gathers networks from Meraki."""
     LOGGER.info("ORG NAME: %s", org_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-networks")
@@ -155,7 +172,7 @@ def get_networks(dispatcher, org_name=None):
 
 @subcommand_of("meraki")
 def get_switchports(dispatcher, org_name=None, device_name=None):
-    """Query the Meraki Dashboard API for a list of switch ports."""
+    """Gathers switch ports from a MS switch device."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE NAME: %s", device_name)
     if not org_name:
@@ -199,6 +216,51 @@ def get_switchports(dispatcher, org_name=None, device_name=None):
                 entry["linkNegotiation"],
                 entry["portScheduleId"],
                 entry["udld"],
+            )
+            for entry in ports
+        ],
+    )
+    return CommandStatusChoices.STATUS_SUCCEEDED
+
+
+@subcommand_of("meraki")
+def get_switchports_status(dispatcher, org_name=None, device_name=None):
+    """Gathers switch ports status from a MS switch device."""
+    LOGGER.info("ORG NAME: %s", org_name)
+    LOGGER.info("DEVICE NAME: %s", device_name)
+    if not org_name:
+        return prompt_for_organization(dispatcher, "meraki get-switchports-status")
+    if not device_name:
+        return prompt_for_device(dispatcher, f"meraki get-switchports-status {org_name}", org_name, dev_type="switches")
+    dispatcher.send_markdown(
+        f"Stand by {dispatcher.user_mention()}, I'm getting the switchports status from {device_name}!"
+    )
+    ports = get_meraki_switchports_status(org_name, device_name)
+    dispatcher.send_large_table(
+        [
+            "Port",
+            "Enabled",
+            "Status",
+            "Errors",
+            "Warnings",
+            "Speed",
+            "Duplex",
+            "Usage (Kb)",
+            "Client Count",
+            "Traffic In (Kbps)",
+        ],
+        [
+            (
+                entry["portId"],
+                entry["enabled"],
+                entry["status"],
+                "\n".join(entry["errors"]),
+                "\n".join(entry["warnings"]),
+                entry["speed"],
+                entry["duplex"],
+                "\n".join([f"{key}: {value}" for key, value in entry["usageInKb"].items()]),
+                entry["clientCount"],
+                "\n".join([f"{key}: {value}" for key, value in entry["trafficInKbps"].items()]),
             )
             for entry in ports
         ],
@@ -272,14 +334,6 @@ def get_camera_recent(dispatcher, org_name=None, device_name=None):
             for entry in camera_stats
         ],
     )
-    # dispatcher.send_blocks(
-    #     dispatcher.command_response_header(
-    #         “meraki”,
-    #         “get-camera-recent”,
-    #         [(“org_name”, f’“{org_name”‘), (“device”, f’“{device}“’)],
-    #         “Get Recent Camera …”
-    #     )
-    # )
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
@@ -315,7 +369,7 @@ def get_clients(dispatcher, org_name=None, device_name=None):
 
 @subcommand_of("meraki")
 def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
-    """Query Meraki for List of Clients."""
+    """Query Meraki for List of LLDP or CDP Neighbors."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE NAME: %s", device_name)
     if not org_name:
@@ -355,4 +409,59 @@ def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
         )
     else:
         dispatcher.send_markdown(f"{dispatcher.user_mention()}, NO LLDP/CDP neighbors for {device_name}!")
+    return CommandStatusChoices.STATUS_SUCCEEDED
+
+
+@subcommand_of("meraki")
+def configure_basic_access_port(  # pylint: disable=too-many-arguments
+    dispatcher, org_name=None, device_name=None, port_number=None, enabled=None, vlan=None, port_desc=None
+):
+    """Configure an access port with description, VLAN and state."""
+    if not org_name:
+        return prompt_for_organization(dispatcher, "meraki configure-basic-access-port")
+    if not device_name:
+        return prompt_for_device(
+            dispatcher, f"meraki configure-basic-access-port {org_name}", org_name, dev_type="switches"
+        )
+    if not port_number:
+        return prompt_for_port(
+            dispatcher, f"meraki configure-basic-access-port {org_name} {device_name}", org_name, device_name
+        )
+    if not (enabled and vlan and port_desc):
+        if not enabled:
+            dispatcher.send_warning("Enable state must be specified")
+        if not vlan:
+            dispatcher.send_warning("A VLAN must be specified")
+        if not port_desc:
+            dispatcher.send_warning("A Port Description must be specified")
+        dialog_list = [
+            {
+                "type": "select",
+                "label": "Port Enabled Status",
+                "choices": [("Port Enabled", "True"), ("Port Disabled", "False")],
+                "default": ("Port Enabled", "True"),
+            },
+            {"type": "text", "label": "VLAN", "default": ""},
+            {"type": "text", "label": "Port Description", "default": ""},
+        ]
+        dispatcher.multi_input_dialog(
+            "meraki",
+            f"configure-basic-access-port {org_name} {device_name} {port_number}",
+            dialog_title="Port Configuration",
+            dialog_list=dialog_list,
+        )
+        return False
+    port_params = dict(name=port_desc, enabled=bool(enabled), type="access", vlan=vlan)
+    LOGGER.info("PORT PARMS: %s", port_params)
+    dispatcher.send_markdown(
+        f"Stand by {dispatcher.user_mention()}, I'm configuring port {port_number} on {device_name}!"
+    )
+    result = update_meraki_switch_port(org_name, device_name, port_number, **port_params)
+    blocks = [
+        dispatcher.markdown_block(
+            f"{dispatcher.user_mention()} The port has been configured, here is the current configuration."
+        ),
+        dispatcher.markdown_block("\n".join([f"{key}: {value}" for key, value in result.items()])),
+    ]
+    dispatcher.send_blocks(blocks)
     return CommandStatusChoices.STATUS_SUCCEEDED

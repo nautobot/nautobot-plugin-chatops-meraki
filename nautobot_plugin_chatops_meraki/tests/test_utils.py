@@ -9,7 +9,7 @@ class TestUtils(unittest.TestCase):
     """Test Version is the same."""
 
     @patch("nautobot_plugin_chatops_meraki.utils.get_meraki_orgs")
-    def test_org_name_to_id(self, mock_orgs):
+    def test_org_name_to_id(self, mock_orgs):  # pylint: disable=no-self-use
         """Test Translate Org Name to Org Id."""
         mock_orgs.return_value = [
             {
@@ -22,7 +22,7 @@ class TestUtils(unittest.TestCase):
         assert _org_name_to_id("NTC-TEST") == "123456"
 
     @patch("nautobot_plugin_chatops_meraki.utils.get_meraki_devices")
-    def test_name_to_serial(self, mock_devices):
+    def test_name_to_serial(self, mock_devices):  # pylint: disable=no-self-use
         """Test Translate Name to Serial."""
         mock_devices.return_value = [
             {
@@ -43,7 +43,7 @@ class TestUtils(unittest.TestCase):
         assert _name_to_serial("NTC-TEST", "fw01-test") == "SN123456"
 
     @patch("nautobot_plugin_chatops_meraki.utils.get_meraki_networks_by_org")
-    def test_netname_to_id(self, mock_net_name):
+    def test_netname_to_id(self, mock_net_name):  # pylint: disable=no-self-use
         """Translate Network Name to Network ID."""
         mock_net_name.return_value = [
             {
