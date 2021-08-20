@@ -1,43 +1,6 @@
-# Nautobot Plugin Chatops Meraki
+# Cisco Meraki ChatOps
 
-A plugin for [Nautobot](https://github.com/nautobot/nautobot).
-
-Cisco Meraki is a complete cloud-managed networking solution. - Wireless, switching, security, WAN optimization, and MDM, centrally managed over the web.
-
-## Installation
-
-The plugin is available as a Python package in PYPI and can be installed with pip
-
-```shell
-pip install git+https://github.com/networktocode-llc/nautobot-plugin-chatops-meraki.git
-```
-
-> The plugin is compatible with Nautobot 1.0.1 and higher
-
-To ensure Nautobot Plugin Chatops Meraki is automatically re-installed during future upgrades, create a file named `local_requirements.txt` (if not already existing) in the Nautobot root directory (alongside `requirements.txt`) and list the `nautobot-plugin-chatops-meraki` package:
-
-```no-highlight
-# echo nautobot-plugin-chatops-meraki >> local_requirements.txt
-```
-
-Once installed, the plugin needs to be enabled in your `nautobot_config.py`
-
-```python
-# In your configuration.py
-PLUGINS = ["nautobot_chatops", "nautobot_plugin_chatops_meraki"]
-
-PLUGINS_CONFIG = {
-  "nautobot_chatops": {
-    # ADD SLACK/MS-TEAMS/WEBEX-TEAMS/MATTERMOST SETTINGS HERE
-  }
-}
-```
-> Note: There is currently no specific configuration needed for this plugin.  The only thing that is needed is below.
-
-The plugin requires the use of a environment variable.  See below.
-
-- `MERAKI_DASHBOARD_API_KEY`: Is set to the dashboard API key. See [Meraki Dashboard API Documentation](https://documentation.meraki.com/General_Administration/Other_Topics/Cisco_Meraki_Dashboard_API).
-
+Using the [Nautobot ChatOps](https://github.com/nautobot/nautobot-plugin-chatops/) base framework, this Nautobot app (plugin) adds the ability to gather data as well as make basic changes communicating directly with the Meraki portal using Slack, Webex Teams, MS Teams, and Mattermost changing the way IT organizations support their Meraki infrastructure.
 
 ## Usage
 
@@ -103,6 +66,40 @@ Fill out the Port Specific Configuration.
 
 Result of the configuration.
 ![Example output for config-port2](docs/images/02-meraki-port-config.png)
+
+## Installation
+
+The plugin is available as a Python package in PYPI and can be installed with pip
+
+```shell
+pip install git+https://github.com/networktocode-llc/nautobot-plugin-chatops-meraki.git
+```
+
+> The plugin is compatible with Nautobot 1.0.1 and higher
+
+To ensure Nautobot Plugin Chatops Meraki is automatically re-installed during future upgrades, create a file named `local_requirements.txt` (if not already existing) in the Nautobot root directory (alongside `requirements.txt`) and list the `nautobot-plugin-chatops-meraki` package:
+
+```no-highlight
+# echo nautobot-plugin-chatops-meraki >> local_requirements.txt
+```
+
+Once installed, the plugin needs to be enabled in your `nautobot_config.py`
+
+```python
+# In your configuration.py
+PLUGINS = ["nautobot_chatops", "nautobot_plugin_chatops_meraki"]
+
+PLUGINS_CONFIG = {
+  "nautobot_chatops": {
+    # ADD SLACK/MS-TEAMS/WEBEX-TEAMS/MATTERMOST SETTINGS HERE
+  }
+}
+```
+> Note: There is currently no specific configuration needed for this plugin.  The only thing that is needed is below.
+
+The plugin requires the use of a environment variable.  See below.
+
+- `MERAKI_DASHBOARD_API_KEY`: Is set to the dashboard API key. See [Meraki Dashboard API Documentation](https://documentation.meraki.com/General_Administration/Other_Topics/Cisco_Meraki_Dashboard_API).
 
 ## Contributing
 
