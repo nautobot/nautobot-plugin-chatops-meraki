@@ -108,7 +108,6 @@ def get_organizations(dispatcher):
             "Organization List",
             meraki_logo(dispatcher),
         ),
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the Meraki organizations"),
         dispatcher.markdown_block("\n".join([org["name"] for org in org_list])),
     ]
     dispatcher.send_blocks(blocks)
@@ -126,7 +125,13 @@ def get_admins(dispatcher, org_name=None):
     )
     admins = get_meraki_org_admins(org_name)
     blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the admins for {org_name}"),
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-admins",
+            [("Org Name", org_name)],
+            "Admin List",
+            meraki_logo(dispatcher),
+        ),
         dispatcher.markdown_block("\n".join([admin["name"] for admin in admins])),
     ]
     dispatcher.send_blocks(blocks)
@@ -148,7 +153,13 @@ def get_devices(dispatcher, org_name=None, device_type=None):
     devices_result = parse_device_list(device_type, devices)
     if len(devices_result) > 0:
         blocks = [
-            dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices requested"),
+            *dispatcher.command_response_header(
+                "meraki",
+                "get-devices",
+                [("Org Name", org_name), ("Device Type", device_type)],
+                "Device List",
+                meraki_logo(dispatcher),
+            ),
             dispatcher.markdown_block("\n".join(devices_result)),
         ]
     else:
