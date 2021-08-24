@@ -298,11 +298,13 @@ def get_firewall_performance(dispatcher, org_name=None, device_name=None):
     """Query Meraki with a firewall to device performance."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE NAME: %s", device_name)
+    devices = get_meraki_devices(org_name)
+    fws = parse_device_list("firewalls", devices)
+    if len(fws) == 0:
+        dispatcher.send_markdown(f"{dispatcher.user_mention()}, There is **no** Firewalls in this Meraki Org!")
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-firewall-performance")
     if not device_name:
-        devices = get_meraki_devices(org_name)
-        fws = parse_device_list("firewalls", devices)
         if len(fws) > 0:
             return prompt_for_device(
                 dispatcher, f"meraki get-firewall-performance {org_name}", org_name, dev_type="firewalls"
@@ -355,6 +357,10 @@ def get_camera_recent(dispatcher, org_name=None, device_name=None):
     """Query Meraki Recent Camera Analytics."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE NAME: %s", device_name)
+    devices = get_meraki_devices(org_name)
+    cams = parse_device_list("cameras", devices)
+    if len(cams) == 0:
+        dispatcher.send_markdown(f"{dispatcher.user_mention()}, There is **no** Cameras in this Meraki Org!")
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-camera-recent")
     if not device_name:
