@@ -197,7 +197,7 @@ def get_networks(dispatcher, org_name=None):
         return (
             CommandStatusChoices.STATUS_FAILED,
             f"NO Networks in {org_name}!",
-        )        
+        )
     blocks = [
         *dispatcher.command_response_header(
             "meraki",
