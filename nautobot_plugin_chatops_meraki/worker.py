@@ -356,6 +356,10 @@ def get_camera_recent(dispatcher, org_name=None, device_name=None):
         cams = parse_device_list("cameras", devices)
         if len(cams) == 0:
             dispatcher.send_error("There are NO Cameras in this Meraki Org!")
+            return (
+                CommandStatusChoices.STATUS_FAILED,
+                "There are NO Cameras in this Meraki Org!",
+            )
         else:
             return prompt_for_device(dispatcher, f"meraki get-camera-recent '{org_name}'", org_name, dev_type="cameras")
     dispatcher.send_markdown(
