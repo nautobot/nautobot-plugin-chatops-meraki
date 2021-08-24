@@ -85,7 +85,6 @@ def parse_device_list(dev_type, devs):
         "switches": "MS",
     }
     if dev_type != "all":
-
         return [dev["name"] for dev in devs if meraki_dev_mapper.get(dev_type) in dev["model"]]
     return [dev["name"] for dev in devs]
 
@@ -100,6 +99,12 @@ def cisco_meraki(subcommand, **kwargs):
 def get_organizations(dispatcher):
     """Gather all the Meraki Organizations."""
     org_list = get_meraki_orgs()
+    if len(org_list) == 0:
+        dispatcher.send_error("NO Meraki Orgs!")
+        return (
+            CommandStatusChoices.STATUS_FAILED,
+            "NO Meraki Orgs!",
+        )
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the Organizations!")
     blocks = [
         *dispatcher.command_response_header(
@@ -125,6 +130,12 @@ def get_admins(dispatcher, org_name=None):
         f"Stand by {dispatcher.user_mention()}, I'm getting the admins for the Organization {org_name}!"
     )
     admins = get_meraki_org_admins(org_name)
+    if len(admins) == 0:
+        dispatcher.send_error(f"NO Meraki Admins for {org_name}!")
+        return (
+            CommandStatusChoices.STATUS_FAILED,
+            f"NO Meraki Admins for {org_name}!",
+        )
     blocks = [
         *dispatcher.command_response_header(
             "meraki",
@@ -181,6 +192,12 @@ def get_networks(dispatcher, org_name=None):
         f"Stand by {dispatcher.user_mention()}, I'm getting the networks at the Organization {org_name}!"
     )
     networks = get_meraki_networks_by_org(org_name)
+    if len(networks) == 0:
+        dispatcher.send_error(f"NO Networks in {org_name}!")
+        return (
+            CommandStatusChoices.STATUS_FAILED,
+            f"NO Networks in {org_name}!",
+        )
     blocks = [
         *dispatcher.command_response_header(
             "meraki",
@@ -298,19 +315,20 @@ def get_firewall_performance(dispatcher, org_name=None, device_name=None):
     """Query Meraki with a firewall to device performance."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE NAME: %s", device_name)
-    devices = get_meraki_devices(org_name)
-    fws = parse_device_list("firewalls", devices)
-    if len(fws) == 0:
-        dispatcher.send_markdown(f"{dispatcher.user_mention()}, There is **no** Firewalls in this Meraki Org!")
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-firewall-performance")
     if not device_name:
-        if len(fws) > 0:
-            return prompt_for_device(
-                dispatcher, f"meraki get-firewall-performance {org_name}", org_name, dev_type="firewalls"
+        devices = get_meraki_devices(org_name)
+        fws = parse_device_list("firewalls", devices)
+        if len(fws) == 0:
+            dispatcher.send_error("There are NO Firewalls in this Meraki Org!")
+            return (
+                CommandStatusChoices.STATUS_FAILED,
+                "There are NO Firewalls in this Meraki Org!",
             )
-        else:
-            dispatcher.send_markdown(f"{dispatcher.user_mention()} there are NO devices that meet the requirements")
+        return prompt_for_device(
+            dispatcher, f"meraki get-firewall-performance {org_name}", org_name, dev_type="firewalls"
+        )
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the performance for {device_name}!")
     fw_perfomance = get_meraki_firewall_performance(org_name, device_name)
     blocks = [
@@ -357,18 +375,27 @@ def get_camera_recent(dispatcher, org_name=None, device_name=None):
     """Query Meraki Recent Camera Analytics."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE NAME: %s", device_name)
-    devices = get_meraki_devices(org_name)
-    cams = parse_device_list("cameras", devices)
-    if len(cams) == 0:
-        dispatcher.send_markdown(f"{dispatcher.user_mention()}, There is **no** Cameras in this Meraki Org!")
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-camera-recent")
     if not device_name:
+        devices = get_meraki_devices(org_name)
+        cams = parse_device_list("cameras", devices)
+        if len(cams) == 0:
+            dispatcher.send_error("There are NO Cameras in this Meraki Org!")
+            return (
+                CommandStatusChoices.STATUS_FAILED,
+                "There are NO Cameras in this Meraki Org!",
+            )
         return prompt_for_device(dispatcher, f"meraki get-camera-recent '{org_name}'", org_name, dev_type="cameras")
     dispatcher.send_markdown(
         f"Stand by {dispatcher.user_mention()}, I'm getting the recent camera analytics for {device_name}!"
     )
     camera_stats = get_meraki_camera_recent(org_name, device_name)
+    if len(camera_stats) == 0:
+        return (
+            CommandStatusChoices.STATUS_FAILED,
+            "There are NO Cameras in this Meraki Org!",
+        )
     dispatcher.send_large_table(
         ["Zone", "Start Time", "End Time", "Entrances", "Average Count"],
         [
