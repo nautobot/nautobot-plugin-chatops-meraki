@@ -20,7 +20,7 @@ from .utils import (
     update_meraki_switch_port,
 )
 
-MERAKI_LOGO_PATH = "nautobot_meraki/Meraki_Logo.png"
+MERAKI_LOGO_PATH = "nautobot_meraki/meraki.png"
 MERAKI_LOGO_ALT = "Meraki Logo"
 
 LOGGER = logging.getLogger("nautobot_plugin_chatops_meraki")
@@ -101,7 +101,13 @@ def get_organizations(dispatcher):
     org_list = get_meraki_orgs()
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the Organizations!")
     blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the Meraki organizations"),
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-organizations",
+            [],
+            "Organization List",
+            meraki_logo(dispatcher),
+        ),
         dispatcher.markdown_block("\n".join([org["name"] for org in org_list])),
     ]
     dispatcher.send_blocks(blocks)
@@ -119,7 +125,13 @@ def get_admins(dispatcher, org_name=None):
     )
     admins = get_meraki_org_admins(org_name)
     blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the admins for {org_name}"),
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-admins",
+            [("Org Name", org_name)],
+            "Admin List",
+            meraki_logo(dispatcher),
+        ),
         dispatcher.markdown_block("\n".join([admin["name"] for admin in admins])),
     ]
     dispatcher.send_blocks(blocks)
@@ -141,7 +153,13 @@ def get_devices(dispatcher, org_name=None, device_type=None):
     devices_result = parse_device_list(device_type, devices)
     if len(devices_result) > 0:
         blocks = [
-            dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices requested"),
+            *dispatcher.command_response_header(
+                "meraki",
+                "get-devices",
+                [("Org Name", org_name), ("Device Type", device_type)],
+                "Device List",
+                meraki_logo(dispatcher),
+            ),
             dispatcher.markdown_block("\n".join(devices_result)),
         ]
     else:
@@ -163,7 +181,13 @@ def get_networks(dispatcher, org_name=None):
     )
     networks = get_meraki_networks_by_org(org_name)
     blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the networks in {org_name}"),
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-networks",
+            [("Org Name", org_name)],
+            "Network List",
+            meraki_logo(dispatcher),
+        ),
         dispatcher.markdown_block("\n".join([net["name"] for net in networks])),
     ]
     dispatcher.send_blocks(blocks)
@@ -282,7 +306,13 @@ def get_firewall_performance(dispatcher, org_name=None, device_name=None):
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the performance for {device_name}!")
     fw_perfomance = get_meraki_firewall_performance(org_name, device_name)
     blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-firewall-performance",
+            [("Org Name", org_name), ("Device Name", device_name)],
+            "Firewall Performance",
+            meraki_logo(dispatcher),
+        ),
         dispatcher.markdown_block(f"{device_name} has a performance score of {fw_perfomance['perfScore']}"),
     ]
     dispatcher.send_blocks(blocks)
@@ -301,7 +331,13 @@ def get_network_ssids(dispatcher, org_name=None, net_name=None):
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the SSIDs for network {net_name}!")
     ssids = get_meraki_network_ssids(org_name, net_name)
     blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the SSIDs for network {net_name}"),
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-network-ssids",
+            [("Org Name", org_name), ("Network Name", net_name)],
+            "SSID List",
+            meraki_logo(dispatcher),
+        ),
         dispatcher.markdown_block("\n".join([ssid["name"] for ssid in ssids])),
     ]
     dispatcher.send_blocks(blocks)
@@ -458,8 +494,19 @@ def configure_basic_access_port(  # pylint: disable=too-many-arguments
     )
     result = update_meraki_switch_port(org_name, device_name, port_number, **port_params)
     blocks = [
-        dispatcher.markdown_block(
-            f"{dispatcher.user_mention()} The port has been configured, here is the current configuration."
+        *dispatcher.command_response_header(
+            "meraki",
+            "configure-basic-access-port",
+            [
+                ("Org Name", org_name),
+                ("Device Name", device_name),
+                ("Port ID", port_number),
+                ("Enabled", enabled),
+                ("VLAN", vlan),
+                ("Description", port_desc),
+            ],
+            "Configured Port",
+            meraki_logo(dispatcher),
         ),
         dispatcher.markdown_block("\n".join([f"{key}: {value}" for key, value in result.items()])),
     ]
