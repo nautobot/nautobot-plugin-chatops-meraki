@@ -85,6 +85,7 @@ def parse_device_list(dev_type, devs):
         "switches": "MS",
     }
     if dev_type != "all":
+
         return [dev["name"] for dev in devs if meraki_dev_mapper.get(dev_type) in dev["model"]]
     return [dev["name"] for dev in devs]
 
@@ -300,9 +301,14 @@ def get_firewall_performance(dispatcher, org_name=None, device_name=None):
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-firewall-performance")
     if not device_name:
-        return prompt_for_device(
-            dispatcher, f"meraki get-firewall-performance {org_name}", org_name, dev_type="firewalls"
-        )
+        devices = get_meraki_devices(org_name)
+        fws = parse_device_list("firewalls", devices)
+        if len(fws) > 0:
+            return prompt_for_device(
+                dispatcher, f"meraki get-firewall-performance {org_name}", org_name, dev_type="firewalls"
+            )
+        else:
+            dispatcher.send_markdown(f"{dispatcher.user_mention()} there are NO devices that meet the requirements")
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the performance for {device_name}!")
     fw_perfomance = get_meraki_firewall_performance(org_name, device_name)
     blocks = [
