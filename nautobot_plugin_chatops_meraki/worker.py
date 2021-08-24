@@ -319,7 +319,7 @@ def get_firewall_performance(dispatcher, org_name=None, device_name=None):
         return prompt_for_organization(dispatcher, "meraki get-firewall-performance")
     if not device_name:
         devices = get_meraki_devices(org_name)
-        fws = parse_device_list("cameras", devices)
+        fws = parse_device_list("firewalls", devices)
         if len(fws) == 0:
             dispatcher.send_error("There are NO Firewalls in this Meraki Org!")
             return (
