@@ -101,6 +101,12 @@ def get_organizations(dispatcher):
     org_list = get_meraki_orgs()
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the Organizations!")
     blocks = [
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-organizations",
+            [],
+            meraki_logo(dispatcher),
+        ),
         dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the Meraki organizations"),
         dispatcher.markdown_block("\n".join([org["name"] for org in org_list])),
     ]
