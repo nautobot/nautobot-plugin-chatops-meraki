@@ -105,7 +105,7 @@ def get_organizations(dispatcher):
             "meraki",
             "get-organizations",
             [],
-            meraki_logo(dispatcher),
+            image_element=meraki_logo(dispatcher),
         ),
         dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the Meraki organizations"),
         dispatcher.markdown_block("\n".join([org["name"] for org in org_list])),
