@@ -20,7 +20,7 @@ from .utils import (
     update_meraki_switch_port,
 )
 
-MERAKI_LOGO_PATH = "nautobot_meraki/Meraki_Logo.png"
+MERAKI_LOGO_PATH = "nautobot_meraki/meraki.png"
 MERAKI_LOGO_ALT = "Meraki Logo"
 
 LOGGER = logging.getLogger("nautobot_plugin_chatops_meraki")
