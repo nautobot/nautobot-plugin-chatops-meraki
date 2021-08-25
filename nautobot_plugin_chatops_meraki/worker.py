@@ -581,5 +581,5 @@ def configure_basic_access_port(  # pylint: disable=too-many-arguments
         ),
     ]
     dispatcher.send_blocks(blocks)
-    dispatcher.send_large_table(list(result.keys()), [(value,) for value in result.values()])
+    dispatcher.send_large_table(list(result.keys()), [tuple(result.values())])
     return CommandStatusChoices.STATUS_SUCCEEDED
