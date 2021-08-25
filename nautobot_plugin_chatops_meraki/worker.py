@@ -106,24 +106,16 @@ def get_organizations(dispatcher):
             "NO Meraki Orgs!",
         )
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the Organizations!")
-    # blocks = [
-    #     *dispatcher.command_response_header(
-    #         "meraki",
-    #         "get-organizations",
-    #         [],
-    #         "Organization List",
-    #         meraki_logo(dispatcher),
-    #     ),
-    #     dispatcher.send_large_table(["Organizations"], [(org["name"],) for org in org_list]),
-    # ]
-    # dispatcher.send_blocks(blocks)
-    dispatcher.command_response_header(
-        "meraki",
-        "get-organizations",
-        [],
-        "Organization List",
-        meraki_logo(dispatcher),
-    )
+    blocks = [
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-organizations",
+            [],
+            "Organization List",
+            meraki_logo(dispatcher),
+        ),
+    ]
+    dispatcher.send_blocks(blocks)
     dispatcher.send_large_table(["Organizations"], [(org["name"],) for org in org_list])
     return CommandStatusChoices.STATUS_SUCCEEDED
 
