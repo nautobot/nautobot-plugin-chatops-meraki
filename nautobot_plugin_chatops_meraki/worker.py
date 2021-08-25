@@ -346,20 +346,20 @@ def get_firewall_performance(dispatcher, org_name=None, device_name=None):
 
 
 @subcommand_of("meraki")
-def get_network_ssids(dispatcher, org_name=None, net_name=None):
+def get_wlan_ssids(dispatcher, org_name=None, net_name=None):
     """Query Meraki for all SSIDs for a given Network."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("NETWORK NAME: %s", net_name)
     if not org_name:
-        return prompt_for_organization(dispatcher, "meraki get-network-ssids")
+        return prompt_for_organization(dispatcher, "meraki get-wlan-ssids")
     if not net_name:
-        return prompt_for_network(dispatcher, f"meraki get-network-ssids {org_name}", org_name)
+        return prompt_for_network(dispatcher, f"meraki get-wlan-ssids {org_name}", org_name)
     dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the SSIDs for network {net_name}!")
     ssids = get_meraki_network_ssids(org_name, net_name)
     blocks = [
         *dispatcher.command_response_header(
             "meraki",
-            "get-network-ssids",
+            "get-wlan-ssids",
             [("Org Name", org_name), ("Network Name", net_name)],
             "SSID List",
             meraki_logo(dispatcher),
@@ -427,7 +427,7 @@ def get_clients(dispatcher, org_name=None, device_name=None):
         ["Usage", "Description", "MAC", "IP", "User", "VLAN", "Switchport", "DHCP Hostname"],
         [
             (
-                entry["usage"],
+                "\n".join([f"{key}: {value}" for key, value in entry["usage"].items()]),
                 entry["description"],
                 entry["mac"],
                 entry["ip"],
@@ -443,14 +443,14 @@ def get_clients(dispatcher, org_name=None, device_name=None):
 
 
 @subcommand_of("meraki")
-def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
+def get_neighbors(dispatcher, org_name=None, device_name=None):
     """Query Meraki for List of LLDP or CDP Neighbors."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE NAME: %s", device_name)
     if not org_name:
-        return prompt_for_organization(dispatcher, "meraki get-lldp-cdp")
+        return prompt_for_organization(dispatcher, "meraki get-neighbors")
     if not device_name:
-        return prompt_for_device(dispatcher, f"meraki get-lldp-cdp '{org_name}'", org_name)
+        return prompt_for_device(dispatcher, f"meraki get-neighbors '{org_name}'", org_name)
     dispatcher.send_markdown(
         f"Stand by {dispatcher.user_mention()}, I'm getting the discovery protocol information for {device_name}!"
     )
