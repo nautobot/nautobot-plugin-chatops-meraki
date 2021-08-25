@@ -560,9 +560,6 @@ def configure_basic_access_port(  # pylint: disable=too-many-arguments
         return False
     port_params = dict(name=port_desc, enabled=bool(enabled), type="access", vlan=vlan)
     LOGGER.info("PORT PARMS: %s", port_params)
-    dispatcher.send_markdown(
-        f"Stand by {dispatcher.user_mention()}, I'm configuring port {port_number} on {device_name}!"
-    )
     result = update_meraki_switch_port(org_name, device_name, port_number, **port_params)
     blocks = [
         *dispatcher.command_response_header(
@@ -572,9 +569,6 @@ def configure_basic_access_port(  # pylint: disable=too-many-arguments
                 ("Org Name", org_name),
                 ("Device Name", device_name),
                 ("Port ID", port_number),
-                ("Enabled", enabled),
-                ("VLAN", vlan),
-                ("Description", port_desc),
             ],
             "Configured Port",
             meraki_logo(dispatcher),
