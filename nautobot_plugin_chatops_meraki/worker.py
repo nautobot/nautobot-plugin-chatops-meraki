@@ -579,8 +579,7 @@ def configure_basic_access_port(  # pylint: disable=too-many-arguments
             "Configured Port",
             meraki_logo(dispatcher),
         ),
-        dispatcher.markdown_block("\n".join([f"{key}: {value}" for key, value in result.items()])),
     ]
     dispatcher.send_blocks(blocks)
-    dispatcher.send_large_table(["\n".join(result.keys())], [(value,) for value in result.values()])
+    dispatcher.send_large_table(list(result.keys()), [(value,) for value in result.values()])
     return CommandStatusChoices.STATUS_SUCCEEDED
