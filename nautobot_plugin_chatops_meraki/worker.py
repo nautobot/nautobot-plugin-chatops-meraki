@@ -114,7 +114,7 @@ def get_organizations(dispatcher):
             "Organization List",
             meraki_logo(dispatcher),
         ),
-        dispatcher.markdown_block("\n".join([org["name"] for org in org_list])),
+        dispatcher.send_large_table(["Organizations"], [(org["name"]) for org in org_list]),
     ]
     dispatcher.send_blocks(blocks)
     return CommandStatusChoices.STATUS_SUCCEEDED
