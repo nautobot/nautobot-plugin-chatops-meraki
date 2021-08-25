@@ -376,9 +376,9 @@ def get_wlan_ssids(dispatcher, org_name=None, net_name=None):
     ]
     dispatcher.send_blocks(blocks)
     dispatcher.send_large_table(
-        ["Name", "Enabled", "Encryption Mode", "Visible", "Band"],
+        ["Name", "Enabled", "Visible", "Band"],
         [
-            (ssid["name"], ssid["enabled"], ssid["encryptionMode"], ssid["visible"], ssid["bandSelection"])
+            (ssid["name"], ssid["enabled"], ssid["visible"], ssid["bandSelection"])
             for ssid in ssids
         ],
     )
