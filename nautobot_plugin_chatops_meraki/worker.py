@@ -105,7 +105,6 @@ def get_organizations(dispatcher):
             CommandStatusChoices.STATUS_FAILED,
             "NO Meraki Orgs!",
         )
-    dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the Organizations!")
     blocks = [
         *dispatcher.command_response_header(
             "meraki",
@@ -126,9 +125,6 @@ def get_admins(dispatcher, org_name=None):
     LOGGER.info("ORG NAME: %s", org_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-admins")
-    dispatcher.send_markdown(
-        f"Stand by {dispatcher.user_mention()}, I'm getting the admins for the Organization {org_name}!"
-    )
     admins = get_meraki_org_admins(org_name)
     if len(admins) == 0:
         dispatcher.send_error(f"NO Meraki Admins for {org_name}!")
@@ -144,9 +140,9 @@ def get_admins(dispatcher, org_name=None):
             "Admin List",
             meraki_logo(dispatcher),
         ),
-        dispatcher.markdown_block("\n".join([admin["name"] for admin in admins])),
     ]
     dispatcher.send_blocks(blocks)
+    dispatcher.send_large_table(["Admins"], [(admin["name"],) for admin in admins])
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
@@ -172,13 +168,14 @@ def get_devices(dispatcher, org_name=None, device_type=None):
                 "Device List",
                 meraki_logo(dispatcher),
             ),
-            dispatcher.markdown_block("\n".join(devices_result)),
         ]
+        dispatcher.send_blocks(blocks)
+        dispatcher.send_large_table(["Devices"], [(device,) for device in devices_result])
     else:
         blocks = [
             dispatcher.markdown_block(f"{dispatcher.user_mention()} there are NO devices that meet the requirements"),
         ]
-    dispatcher.send_blocks(blocks)
+        dispatcher.send_blocks(blocks)
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
@@ -188,9 +185,6 @@ def get_networks(dispatcher, org_name=None):
     LOGGER.info("ORG NAME: %s", org_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-networks")
-    dispatcher.send_markdown(
-        f"Stand by {dispatcher.user_mention()}, I'm getting the networks at the Organization {org_name}!"
-    )
     networks = get_meraki_networks_by_org(org_name)
     if len(networks) == 0:
         dispatcher.send_error(f"NO Networks in {org_name}!")
@@ -206,9 +200,9 @@ def get_networks(dispatcher, org_name=None):
             "Network List",
             meraki_logo(dispatcher),
         ),
-        dispatcher.markdown_block("\n".join([net["name"] for net in networks])),
     ]
     dispatcher.send_blocks(blocks)
+    dispatcher.send_large_table(["Networks"], [(net["name"], net["notes"]) for net in networks])
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
