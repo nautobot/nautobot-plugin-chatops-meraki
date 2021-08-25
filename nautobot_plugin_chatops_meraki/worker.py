@@ -202,7 +202,7 @@ def get_networks(dispatcher, org_name=None):
         ),
     ]
     dispatcher.send_blocks(blocks)
-    dispatcher.send_large_table(["Networks"], [(net["name"], net["notes"]) for net in networks])
+    dispatcher.send_large_table(["Networks", "Notes"], [(net["name"], net["notes"]) for net in networks])
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
