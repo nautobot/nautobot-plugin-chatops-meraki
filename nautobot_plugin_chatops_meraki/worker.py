@@ -541,12 +541,6 @@ def configure_basic_access_port(  # pylint: disable=too-many-arguments
             dispatcher, f"meraki configure-basic-access-port {org_name} {device_name}", org_name, device_name
         )
     if not (enabled and vlan and port_desc):
-        # if not enabled:
-        #     dispatcher.send_warning("Enable state must be specified")
-        # if not vlan:
-        #     dispatcher.send_warning("A VLAN must be specified")
-        # if not port_desc:
-        #     dispatcher.send_warning("A Port Description must be specified")
         dialog_list = [
             {
                 "type": "select",
@@ -588,4 +582,5 @@ def configure_basic_access_port(  # pylint: disable=too-many-arguments
         dispatcher.markdown_block("\n".join([f"{key}: {value}" for key, value in result.items()])),
     ]
     dispatcher.send_blocks(blocks)
+    dispatcher.send_large_table(["\n".join(result.keys())], [(value,) for value in result.values()])
     return CommandStatusChoices.STATUS_SUCCEEDED
