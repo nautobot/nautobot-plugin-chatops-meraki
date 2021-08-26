@@ -88,3 +88,9 @@ def update_meraki_switch_port(org_name, device_name, port, **kwargs):
     """Update SwitchPort Configuration."""
     dashboard = meraki.DashboardAPI(suppress_logging=True)
     return dashboard.switch.updateDeviceSwitchPort(_name_to_serial(org_name, device_name), port, **kwargs)
+
+
+def port_cycle(org_name, device_name, port):
+    """Cycle a port on a switch."""
+    dashboard = meraki.DashboardAPI(suppress_logging=True)
+    return dashboard.switch.cycleDeviceSwitchPorts(_name_to_serial(org_name, device_name), list(port))

@@ -24,6 +24,7 @@ The following commands are available:
 - `/meraki get-clients [org-name] [device-name]`: Query Meraki for List of Clients.
 - `/meraki get-lldp-cdp [org-name] [device-name]`: Query Meraki for List of LLDP or CDP Neighbors.
 - `/meraki configure-basic-access-port [org-name] [device-name] [port-number] [enabled] [vlan] [port-desc]`: Configure an access port with description, VLAN and state.
+- `/meraki cycle-port [org-name] [device-name] [port-number]`: Cycles a port on a given switch.
 
 ## Screenshots
 
@@ -38,21 +39,21 @@ Running `/meraki get-switchports-status`.
 
 Since the output was cut off the output example is below:
 ```
-Port   Enabled      Status         Errors       Warnings   Speed    Duplex    Usage (Kb)    Client Count    Traffic In  
-                                                                                                              (Kbps)    
+Port   Enabled      Status         Errors       Warnings   Speed    Duplex    Usage (Kb)    Client Count    Traffic In
+                                                                                                              (Kbps)
 ========================================================================================================================
-1      True      Connected                                 1 Gbps   full     total: 46687   1              total: 4.3   
-                                                                             sent: 27405                   sent: 2.5    
-                                                                             recv: 19282                   recv: 1.8    
-2      True      Connected                                 1 Gbps   full     total: 10086   1              total: 1.0   
-                                                                             sent: 9481                    sent: 0.9    
-                                                                             recv: 605                     recv: 0.1    
-3      True      Disconnected   Port                                         total: 0       0              total: 0     
-                                disconnected                                 sent: 0                       sent: 0      
-                                                                             recv: 0                       recv: 0      
-4      True      Disconnected   Port                                         total: 0       0              total: 0     
-                                disconnected                                 sent: 0                       sent: 0      
-                                                                             recv: 0                       recv: 0      
+1      True      Connected                                 1 Gbps   full     total: 46687   1              total: 4.3
+                                                                             sent: 27405                   sent: 2.5
+                                                                             recv: 19282                   recv: 1.8
+2      True      Connected                                 1 Gbps   full     total: 10086   1              total: 1.0
+                                                                             sent: 9481                    sent: 0.9
+                                                                             recv: 605                     recv: 0.1
+3      True      Disconnected   Port                                         total: 0       0              total: 0
+                                disconnected                                 sent: 0                       sent: 0
+                                                                             recv: 0                       recv: 0
+4      True      Disconnected   Port                                         total: 0       0              total: 0
+                                disconnected                                 sent: 0                       sent: 0
+                                                                             recv: 0                       recv: 0
  ```
 
 To demonstrate a example of configuration updates.  There is a simple configuration ability for access ports.

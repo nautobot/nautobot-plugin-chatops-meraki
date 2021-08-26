@@ -18,6 +18,7 @@ from .utils import (
     get_meraki_device_clients,
     get_meraki_device_lldpcdp,
     update_meraki_switch_port,
+    port_cycle,
 )
 
 MERAKI_LOGO_PATH = "nautobot_meraki/meraki.png"
@@ -339,7 +340,6 @@ def get_firewall_performance(dispatcher, org_name=None, device_name=None):
         return prompt_for_device(
             dispatcher, f"meraki get-firewall-performance {org_name}", org_name, dev_type="firewalls"
         )
-    dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the performance for {device_name}!")
     fw_perfomance = get_meraki_firewall_performance(org_name, device_name)
     blocks = [
         *dispatcher.command_response_header(
@@ -573,4 +573,30 @@ def configure_basic_access_port(  # pylint: disable=too-many-arguments
     ]
     dispatcher.send_blocks(blocks)
     dispatcher.send_large_table(list(result.keys()), [tuple(result.values())])
+    return CommandStatusChoices.STATUS_SUCCEEDED
+
+
+@subcommand_of("meraki")
+def cycle_port(dispatcher, org_name=None, device_name=None, port_number=None):
+    """Cycle a port on a switch."""
+    LOGGER.info("ORG NAME: %s", org_name)
+    if not org_name:
+        return prompt_for_organization(dispatcher, "meraki cycle-port")
+    if not device_name:
+        return prompt_for_device(dispatcher, f"meraki cycle-port {org_name}", org_name, dev_type="switches")
+    if not port_number:
+        return prompt_for_port(dispatcher, f"meraki cycle-port {org_name} {device_name}", org_name, device_name)
+
+    cycled_port = port_cycle(org_name, device_name, port_number)
+    blocks = [
+        *dispatcher.command_response_header(
+            "meraki",
+            "cycle-port",
+            [("Org Name", org_name), ("Device Name", device_name), ("Port", port_number)],
+            "cycled port",
+            meraki_logo(dispatcher),
+        ),
+        dispatcher.markdown_block(f"Port {cycled_port['ports'][0]} cycled successfully!"),
+    ]
+    dispatcher.send_blocks(blocks)
     return CommandStatusChoices.STATUS_SUCCEEDED
