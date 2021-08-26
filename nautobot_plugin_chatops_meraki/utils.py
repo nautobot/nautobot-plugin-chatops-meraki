@@ -5,7 +5,7 @@ import meraki
 
 def _org_name_to_id(org_name):
     """Translate Org Name to Org Id."""
-    return [org["id"] for org in get_meraki_orgs() if org["name"] == org_name][0]
+    return [org["id"] for org in get_meraki_orgs() if org["name"].lower() == org_name.lower()][0]
 
 
 def _name_to_serial(org_name, device_name):
