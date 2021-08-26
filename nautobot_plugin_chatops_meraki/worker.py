@@ -377,10 +377,7 @@ def get_wlan_ssids(dispatcher, org_name=None, net_name=None):
     dispatcher.send_blocks(blocks)
     dispatcher.send_large_table(
         ["Name", "Enabled", "Visible", "Band"],
-        [
-            (ssid["name"], ssid["enabled"], ssid["visible"], ssid["bandSelection"])
-            for ssid in ssids
-        ],
+        [(ssid["name"], ssid["enabled"], ssid["visible"], ssid["bandSelection"]) for ssid in ssids],
     )
     return CommandStatusChoices.STATUS_SUCCEEDED
 
