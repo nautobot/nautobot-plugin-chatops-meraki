@@ -6,9 +6,9 @@ Using the [Nautobot ChatOps](https://github.com/nautobot/nautobot-plugin-chatops
 
 ### Command Setup
 Add a slash command to Slack called `/meraki`.
-See the [nautobot-chatops installation guide](https://github.com/nautobot/nautobot-plugin-chatops/blob/develop/docs/chat_setup.md) for instructions on adding a slash command to your Slack channel.
+See the [nautobot-chatops installation guide](https://github.com/nautobot/nautobot-plugin-chatops/blob/develop/docs/chat_setup/chat_setup.md) for instructions on adding a slash command to your Slack channel.
 
-You may need to adjust your [Access Grants in Nautobot](https://github.com/nautobot/nautobot-plugin-chatops/blob/develop/docs/chat_setup.md#grant-access-to-the-chatbot) depending on your security requirements.
+You may need to adjust your [Access Grants in Nautobot](https://github.com/nautobot/nautobot-plugin-chatops/blob/develop/docs/chat_setup/chat_setup.md#grant-access-to-the-chatbot) depending on your security requirements.
 
 The following commands are available:
 
@@ -70,6 +70,8 @@ Result of the configuration.
 
 ## Installation
 
+This plugin requires installation of the [Nautobot ChatOps plugin](https://github.com/nautobot/nautobot-plugin-chatops). Follow [this link](https://github.com/nautobot/nautobot-plugin-chatops/blob/develop/docs/chat_setup/chat_setup.md) to the installation instructions for that plugin.
+
 The plugin is available as a Python package in PYPI and can be installed with pip
 
 ```shell
@@ -101,6 +103,8 @@ PLUGINS_CONFIG = {
 The plugin requires the use of a environment variable.  See below.
 
 - `MERAKI_DASHBOARD_API_KEY`: Is set to the dashboard API key. See [Meraki Dashboard API Documentation](https://documentation.meraki.com/General_Administration/Other_Topics/Cisco_Meraki_Dashboard_API).
+
+Add this variable and its value in the `creds.env` file.
 
 ## Contributing
 
