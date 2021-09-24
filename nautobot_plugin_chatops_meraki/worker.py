@@ -485,13 +485,10 @@ def get_neighbors(dispatcher, org_name=None, device_name=None):
         for key, vals in neighbor_list["ports"].items():
             for dp_type, dp_vals in vals.items():
                 if dp_type == "cdp":
-                    print("inside cdp")
                     table_data.append(
                         (key, dp_type, dp_vals.get("deviceId"), dp_vals.get("portId"), dp_vals.get("address"))
                     )
                 elif dp_type == "lldp":
-                    print("inside lldp")
-                    print(dp_vals)
                     table_data.append(
                         (
                             key,
@@ -502,7 +499,7 @@ def get_neighbors(dispatcher, org_name=None, device_name=None):
                         )
                     )
                 else:
-                    print(dp_type)
+                    LOGGER.debug(dp_type)
         blocks = [
             *dispatcher.command_response_header(
                 "meraki",
