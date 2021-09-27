@@ -442,10 +442,10 @@ def get_clients(dispatcher, org_name=None, device_name=None):
         return prompt_for_device(dispatcher, f"meraki get-clients '{org_name}'", org_name)
     client_list = get_meraki_device_clients(org_name, device_name)
     if len(client_list) == 0:
-        dispatcher.send_markdown(f"There are NO Clients in {device_name}!")
+        dispatcher.send_markdown(f"There are NO Clients on {device_name}!")
         return (
             CommandStatusChoices.STATUS_SUCCEEDED,
-            f"There are NO Clients in {device_name}!",
+            f"There are NO Clients on {device_name}!",
         )
     blocks = [
         *dispatcher.command_response_header(
