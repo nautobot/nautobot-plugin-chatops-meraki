@@ -1,10 +1,76 @@
-# Nautobot Plugin Chatops Meraki
+# Cisco Meraki ChatOps
 
-A plugin for [Nautobot](https://github.com/nautobot/nautobot).
+Using the [Nautobot ChatOps](https://github.com/nautobot/nautobot-plugin-chatops/) base framework, this Nautobot app (plugin) adds the ability to gather data as well as make basic changes communicating directly with the Meraki portal using Slack, Webex Teams, MS Teams, and Mattermost changing the way IT organizations support their Meraki infrastructure.
 
-Cisco Meraki is a complete cloud-managed networking solution. - Wireless, switching, security, WAN optimization, and MDM, centrally managed over the web.
+## Usage
+
+### Command Setup
+Add a slash command to Slack called `/meraki`.
+See the [nautobot-chatops installation guide](https://github.com/nautobot/nautobot-plugin-chatops/blob/develop/docs/chat_setup/chat_setup.md) for instructions on adding a slash command to your Slack channel.
+
+You may need to adjust your [Access Grants in Nautobot](https://github.com/nautobot/nautobot-plugin-chatops/blob/develop/docs/chat_setup/chat_setup.md#grant-access-to-the-chatbot) depending on your security requirements.
+
+The following commands are available:
+
+- `/meraki get-organizations`:  Gather all the Meraki Organizations.
+- `/meraki get-admins [org-name]`: Based on an Organization Name Return the Admins.
+- `/meraki get-devices [org-name] [device-type]`: Gathers devices from Meraki.
+- `/meraki get-networks [org-name]`: Gathers networks from Meraki.
+- `/meraki get-switchports [org-name] [device-name]`: Gathers switch ports from a MS switch device.
+- `/meraki get-switchports-status [org-name] [device-name]`: Gathers switch ports status from a MS switch device.
+- `/meraki get-firewall-performance [org-name] [device-name]`: Query Meraki with a firewall to device performance.
+- `/meraki get-network-ssids [org-name] [net-name]`: Query Meraki for all SSIDs for a given Network.
+- `/meraki get-camera-recent [org-name] [device-name]`: Query Meraki Recent Camera Analytics.
+- `/meraki get-clients [org-name] [device-name]`: Query Meraki for List of Clients.
+- `/meraki get-lldp-cdp [org-name] [device-name]`: Query Meraki for List of LLDP or CDP Neighbors.
+- `/meraki configure-basic-access-port [org-name] [device-name] [port-number] [enabled] [vlan] [port-desc]`: Configure an access port with description, VLAN and state.
+- `/meraki cycle-port [org-name] [device-name] [port-number]`: Cycles a port on a given switch.
+
+## Screenshots
+
+Running `/meraki get-organizations`.
+![Example output for get-organizations](docs/images/00-meraki-get-orgs.png)
+
+Running `/meraki get-networks`.
+![Example output for get-networks](docs/images/00-meraki-get-networks.png)
+
+Running `/meraki get-switchports-status`.
+![Example output for get-networks](docs/images/00-meraki-get-port-stats.png)
+
+Since the output was cut off the output example is below:
+```
+Port   Enabled      Status         Errors       Warnings   Speed    Duplex    Usage (Kb)    Client Count    Traffic In
+                                                                                                              (Kbps)
+========================================================================================================================
+1      True      Connected                                 1 Gbps   full     total: 46687   1              total: 4.3
+                                                                             sent: 27405                   sent: 2.5
+                                                                             recv: 19282                   recv: 1.8
+2      True      Connected                                 1 Gbps   full     total: 10086   1              total: 1.0
+                                                                             sent: 9481                    sent: 0.9
+                                                                             recv: 605                     recv: 0.1
+3      True      Disconnected   Port                                         total: 0       0              total: 0
+                                disconnected                                 sent: 0                       sent: 0
+                                                                             recv: 0                       recv: 0
+4      True      Disconnected   Port                                         total: 0       0              total: 0
+                                disconnected                                 sent: 0                       sent: 0
+                                                                             recv: 0                       recv: 0
+ ```
+
+To demonstrate a example of configuration updates.  There is a simple configuration ability for access ports.
+`/meraki configure-basic-access-port`
+
+Specify Org, Switch, and Port ID.
+![Example output for config-port0](docs/images/00-meraki-port-config.png)
+
+Fill out the Port Specific Configuration.
+![Example output for config-port1](docs/images/01-meraki-port-config.png)
+
+Result of the configuration.
+![Example output for config-port2](docs/images/02-meraki-port-config.png)
 
 ## Installation
+
+This plugin requires installation of the [Nautobot ChatOps plugin](https://github.com/nautobot/nautobot-plugin-chatops). Follow [this link](https://github.com/nautobot/nautobot-plugin-chatops/blob/develop/docs/chat_setup/chat_setup.md) to the installation instructions for that plugin.
 
 The plugin is available as a Python package in PYPI and can be installed with pip
 
@@ -38,71 +104,7 @@ The plugin requires the use of a environment variable.  See below.
 
 - `MERAKI_DASHBOARD_API_KEY`: Is set to the dashboard API key. See [Meraki Dashboard API Documentation](https://documentation.meraki.com/General_Administration/Other_Topics/Cisco_Meraki_Dashboard_API).
 
-
-## Usage
-
-### Command Setup
-Add a slash command to Slack called `/meraki`.
-See the [nautobot-chatops installation guide](https://github.com/nautobot/nautobot-plugin-chatops/blob/develop/docs/chat_setup.md) for instructions on adding a slash command to your Slack channel.
-
-You may need to adjust your [Access Grants in Nautobot](https://github.com/nautobot/nautobot-plugin-chatops/blob/develop/docs/chat_setup.md#grant-access-to-the-chatbot) depending on your security requirements.
-
-The following commands are available:
-
-- `/meraki get-organizations`:  Gather all the Meraki Organizations.
-- `/meraki get-admins [org-name]`: Based on an Organization Name Return the Admins.
-- `/meraki get-devices [org-name] [device-type]`: Gathers devices from Meraki.
-- `/meraki get-networks [org-name]`: Gathers networks from Meraki.
-- `/meraki get-switchports [org-name] [device-name]`: Gathers switch ports from a MS switch device.
-- `/meraki get-switchports-status [org-name] [device-name]`: Gathers switch ports status from a MS switch device.
-- `/meraki get-firewall-performance [org-name] [device-name]`: Query Meraki with a firewall to device performance.
-- `/meraki get-network-ssids [org-name] [net-name]`: Query Meraki for all SSIDs for a given Network.
-- `/meraki get-camera-recent [org-name] [device-name]`: Query Meraki Recent Camera Analytics.
-- `/meraki get-clients [org-name] [device-name]`: Query Meraki for List of Clients.
-- `/meraki get-lldp-cdp [org-name] [device-name]`: Query Meraki for List of LLDP or CDP Neighbors.
-- `/meraki configure-basic-access-port [org-name] [device-name] [port-number] [enabled] [vlan] [port-desc]`: Configure an access port with description, VLAN and state.
-
-## Screenshots
-
-Running `/meraki get-organizations`.
-![Example output for get-organizations](docs/images/00-meraki-get-orgs.png)
-
-Running `/meraki get-networks`.
-![Example output for get-networks](docs/images/00-meraki-get-networks.png)
-
-Running `/meraki get-switchports-status`.
-![Example output for get-networks](docs/images/00-meraki-get-port-stats.png)
-
-Since the output was cut off the output example is below:
-```
-Port   Enabled      Status         Errors       Warnings   Speed    Duplex    Usage (Kb)    Client Count    Traffic In  
-                                                                                                              (Kbps)    
-========================================================================================================================
-1      True      Connected                                 1 Gbps   full     total: 46687   1              total: 4.3   
-                                                                             sent: 27405                   sent: 2.5    
-                                                                             recv: 19282                   recv: 1.8    
-2      True      Connected                                 1 Gbps   full     total: 10086   1              total: 1.0   
-                                                                             sent: 9481                    sent: 0.9    
-                                                                             recv: 605                     recv: 0.1    
-3      True      Disconnected   Port                                         total: 0       0              total: 0     
-                                disconnected                                 sent: 0                       sent: 0      
-                                                                             recv: 0                       recv: 0      
-4      True      Disconnected   Port                                         total: 0       0              total: 0     
-                                disconnected                                 sent: 0                       sent: 0      
-                                                                             recv: 0                       recv: 0      
- ```
-
-To demonstrate a example of configuration updates.  There is a simple configuration ability for access ports.
-`/meraki configure-basic-access-port`
-
-Specify Org, Switch, and Port ID.
-![Example output for config-port0](docs/images/00-meraki-port-config.png)
-
-Fill out the Port Specific Configuration.
-![Example output for config-port1](docs/images/01-meraki-port-config.png)
-
-Result of the configuration.
-![Example output for config-port2](docs/images/02-meraki-port-config.png)
+Add this variable and its value in the `creds.env` file.
 
 ## Contributing
 

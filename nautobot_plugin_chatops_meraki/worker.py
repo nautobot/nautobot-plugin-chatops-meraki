@@ -18,9 +18,10 @@ from .utils import (
     get_meraki_device_clients,
     get_meraki_device_lldpcdp,
     update_meraki_switch_port,
+    port_cycle,
 )
 
-MERAKI_LOGO_PATH = "nautobot_meraki/Meraki_Logo.png"
+MERAKI_LOGO_PATH = "nautobot_meraki/meraki.png"
 MERAKI_LOGO_ALT = "Meraki Logo"
 
 LOGGER = logging.getLogger("nautobot_plugin_chatops_meraki")
@@ -99,12 +100,23 @@ def cisco_meraki(subcommand, **kwargs):
 def get_organizations(dispatcher):
     """Gather all the Meraki Organizations."""
     org_list = get_meraki_orgs()
-    dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the Organizations!")
+    if len(org_list) == 0:
+        dispatcher.send_markdown("NO Meraki Orgs!")
+        return (
+            CommandStatusChoices.STATUS_SUCCEEDED,
+            "NO Meraki Orgs!",
+        )
     blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the Meraki organizations"),
-        dispatcher.markdown_block("\n".join([org["name"] for org in org_list])),
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-organizations",
+            [],
+            "Organization List",
+            meraki_logo(dispatcher),
+        ),
     ]
     dispatcher.send_blocks(blocks)
+    dispatcher.send_large_table(["Organizations"], [(org["name"],) for org in org_list])
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
@@ -114,15 +126,24 @@ def get_admins(dispatcher, org_name=None):
     LOGGER.info("ORG NAME: %s", org_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-admins")
-    dispatcher.send_markdown(
-        f"Stand by {dispatcher.user_mention()}, I'm getting the admins for the Organization {org_name}!"
-    )
     admins = get_meraki_org_admins(org_name)
+    if len(admins) == 0:
+        dispatcher.send_markdown(f"NO Meraki Admins for {org_name}!")
+        return (
+            CommandStatusChoices.STATUS_SUCCEEDED,
+            f"NO Meraki Admins for {org_name}!",
+        )
     blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the admins for {org_name}"),
-        dispatcher.markdown_block("\n".join([admin["name"] for admin in admins])),
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-admins",
+            [("Org Name", org_name)],
+            "Admin List",
+            meraki_logo(dispatcher),
+        ),
     ]
     dispatcher.send_blocks(blocks)
+    dispatcher.send_large_table(["Admins"], [(admin["name"],) for admin in admins])
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
@@ -139,16 +160,23 @@ def get_devices(dispatcher, org_name=None, device_type=None):
     LOGGER.info("Translated Device Type: %s", device_type)
     devices = get_meraki_devices(org_name)
     devices_result = parse_device_list(device_type, devices)
-    if len(devices_result) > 0:
-        blocks = [
-            dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices requested"),
-            dispatcher.markdown_block("\n".join(devices_result)),
-        ]
-    else:
-        blocks = [
-            dispatcher.markdown_block(f"{dispatcher.user_mention()} there are NO devices that meet the requirements"),
-        ]
+    if len(devices_result) == 0:
+        dispatcher.send_markdown("There are NO devices that meet the requirements!")
+        return (
+            CommandStatusChoices.STATUS_SUCCEEDED,
+            "There are NO devices that meet the requirements!",
+        )
+    blocks = [
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-devices",
+            [("Org Name", org_name), ("Device Type", device_type)],
+            "Device List",
+            meraki_logo(dispatcher),
+        ),
+    ]
     dispatcher.send_blocks(blocks)
+    dispatcher.send_large_table(["Devices"], [(device,) for device in devices_result])
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
@@ -158,15 +186,24 @@ def get_networks(dispatcher, org_name=None):
     LOGGER.info("ORG NAME: %s", org_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-networks")
-    dispatcher.send_markdown(
-        f"Stand by {dispatcher.user_mention()}, I'm getting the networks at the Organization {org_name}!"
-    )
     networks = get_meraki_networks_by_org(org_name)
+    if len(networks) == 0:
+        dispatcher.send_markdown(f"NO Networks in {org_name}!")
+        return (
+            CommandStatusChoices.STATUS_SUCCEEDED,
+            f"NO Networks in {org_name}!",
+        )
     blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the networks in {org_name}"),
-        dispatcher.markdown_block("\n".join([net["name"] for net in networks])),
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-networks",
+            [("Org Name", org_name)],
+            "Network List",
+            meraki_logo(dispatcher),
+        ),
     ]
     dispatcher.send_blocks(blocks)
+    dispatcher.send_large_table(["Networks", "Notes"], [(net["name"], net["notes"]) for net in networks])
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
@@ -179,8 +216,17 @@ def get_switchports(dispatcher, org_name=None, device_name=None):
         return prompt_for_organization(dispatcher, "meraki get-switchports")
     if not device_name:
         return prompt_for_device(dispatcher, f"meraki get-switchports {org_name}", org_name, dev_type="switches")
-    dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the switchports from {device_name}!")
     ports = get_meraki_switchports(org_name, device_name)
+    blocks = [
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-switchports",
+            [("Org Name", org_name), ("Device Name", device_name)],
+            "Switchport Details",
+            meraki_logo(dispatcher),
+        ),
+    ]
+    dispatcher.send_blocks(blocks)
     dispatcher.send_large_table(
         [
             "Port",
@@ -232,10 +278,17 @@ def get_switchports_status(dispatcher, org_name=None, device_name=None):
         return prompt_for_organization(dispatcher, "meraki get-switchports-status")
     if not device_name:
         return prompt_for_device(dispatcher, f"meraki get-switchports-status {org_name}", org_name, dev_type="switches")
-    dispatcher.send_markdown(
-        f"Stand by {dispatcher.user_mention()}, I'm getting the switchports status from {device_name}!"
-    )
     ports = get_meraki_switchports_status(org_name, device_name)
+    blocks = [
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-switchports-status",
+            [("Org Name", org_name), ("Device Name", device_name)],
+            "Switchport Details",
+            meraki_logo(dispatcher),
+        ),
+    ]
+    dispatcher.send_blocks(blocks)
     dispatcher.send_large_table(
         [
             "Port",
@@ -276,35 +329,56 @@ def get_firewall_performance(dispatcher, org_name=None, device_name=None):
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-firewall-performance")
     if not device_name:
+        devices = get_meraki_devices(org_name)
+        fws = parse_device_list("firewalls", devices)
+        if len(fws) == 0:
+            dispatcher.send_markdown("There are NO Firewalls in this Meraki Org!")
+            return (
+                CommandStatusChoices.STATUS_SUCCEEDED,
+                "There are NO Firewalls in this Meraki Org!",
+            )
         return prompt_for_device(
             dispatcher, f"meraki get-firewall-performance {org_name}", org_name, dev_type="firewalls"
         )
-    dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the performance for {device_name}!")
     fw_perfomance = get_meraki_firewall_performance(org_name, device_name)
     blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the devices at {org_name}"),
-        dispatcher.markdown_block(f"{device_name} has a performance score of {fw_perfomance['perfScore']}"),
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-firewall-performance",
+            [("Org Name", org_name), ("Device Name", device_name)],
+            "Firewall Performance",
+            meraki_logo(dispatcher),
+        ),
+        dispatcher.markdown_block(f"{device_name} has a performance score of {fw_perfomance['perfScore']}."),
     ]
     dispatcher.send_blocks(blocks)
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
 @subcommand_of("meraki")
-def get_network_ssids(dispatcher, org_name=None, net_name=None):
+def get_wlan_ssids(dispatcher, org_name=None, net_name=None):
     """Query Meraki for all SSIDs for a given Network."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("NETWORK NAME: %s", net_name)
     if not org_name:
-        return prompt_for_organization(dispatcher, "meraki get-network-ssids")
+        return prompt_for_organization(dispatcher, "meraki get-wlan-ssids")
     if not net_name:
-        return prompt_for_network(dispatcher, f"meraki get-network-ssids {org_name}", org_name)
-    dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the SSIDs for network {net_name}!")
+        return prompt_for_network(dispatcher, f"meraki get-wlan-ssids {org_name}", org_name)
     ssids = get_meraki_network_ssids(org_name, net_name)
     blocks = [
-        dispatcher.markdown_block(f"{dispatcher.user_mention()} here are the SSIDs for network {net_name}"),
-        dispatcher.markdown_block("\n".join([ssid["name"] for ssid in ssids])),
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-wlan-ssids",
+            [("Org Name", org_name), ("Network Name", net_name)],
+            "SSID List",
+            meraki_logo(dispatcher),
+        ),
     ]
     dispatcher.send_blocks(blocks)
+    dispatcher.send_large_table(
+        ["Name", "Enabled", "Visible", "Band"],
+        [(ssid["name"], ssid["enabled"], ssid["visible"], ssid["bandSelection"]) for ssid in ssids],
+    )
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
@@ -316,11 +390,31 @@ def get_camera_recent(dispatcher, org_name=None, device_name=None):
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-camera-recent")
     if not device_name:
+        devices = get_meraki_devices(org_name)
+        cams = parse_device_list("cameras", devices)
+        if len(cams) == 0:
+            dispatcher.send_markdown("There are NO Cameras in this Meraki Org!")
+            return (
+                CommandStatusChoices.STATUS_SUCCEEDED,
+                "There are NO Cameras in this Meraki Org!",
+            )
         return prompt_for_device(dispatcher, f"meraki get-camera-recent '{org_name}'", org_name, dev_type="cameras")
-    dispatcher.send_markdown(
-        f"Stand by {dispatcher.user_mention()}, I'm getting the recent camera analytics for {device_name}!"
-    )
     camera_stats = get_meraki_camera_recent(org_name, device_name)
+    if len(camera_stats) == 0:
+        return (
+            CommandStatusChoices.STATUS_SUCCEEDED,
+            "There are NO Cameras in this Meraki Org!",
+        )
+    blocks = [
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-camera-recent",
+            [("Org Name", org_name), ("Device Name", device_name)],
+            "Recent Camera Analytics",
+            meraki_logo(dispatcher),
+        ),
+    ]
+    dispatcher.send_blocks(blocks)
     dispatcher.send_large_table(
         ["Zone", "Start Time", "End Time", "Entrances", "Average Count"],
         [
@@ -346,13 +440,28 @@ def get_clients(dispatcher, org_name=None, device_name=None):
         return prompt_for_organization(dispatcher, "meraki get-clients")
     if not device_name:
         return prompt_for_device(dispatcher, f"meraki get-clients '{org_name}'", org_name)
-    dispatcher.send_markdown(f"Stand by {dispatcher.user_mention()}, I'm getting the clients for {device_name}!")
     client_list = get_meraki_device_clients(org_name, device_name)
+    if len(client_list) == 0:
+        dispatcher.send_markdown(f"There are NO Clients on {device_name}!")
+        return (
+            CommandStatusChoices.STATUS_SUCCEEDED,
+            f"There are NO Clients on {device_name}!",
+        )
+    blocks = [
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-get-clients",
+            [("Org Name", org_name), ("Device Name", device_name)],
+            "Get Clients",
+            meraki_logo(dispatcher),
+        ),
+    ]
+    dispatcher.send_blocks(blocks)
     dispatcher.send_large_table(
         ["Usage", "Description", "MAC", "IP", "User", "VLAN", "Switchport", "DHCP Hostname"],
         [
             (
-                entry["usage"],
+                "\n".join([f"{key}: {value}" for key, value in entry["usage"].items()]),
                 entry["description"],
                 entry["mac"],
                 entry["ip"],
@@ -368,47 +477,54 @@ def get_clients(dispatcher, org_name=None, device_name=None):
 
 
 @subcommand_of("meraki")
-def get_lldp_cdp(dispatcher, org_name=None, device_name=None):
+def get_neighbors(dispatcher, org_name=None, device_name=None):
     """Query Meraki for List of LLDP or CDP Neighbors."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE NAME: %s", device_name)
     if not org_name:
-        return prompt_for_organization(dispatcher, "meraki get-lldp-cdp")
+        return prompt_for_organization(dispatcher, "meraki get-neighbors")
     if not device_name:
-        return prompt_for_device(dispatcher, f"meraki get-lldp-cdp '{org_name}'", org_name)
-    dispatcher.send_markdown(
-        f"Stand by {dispatcher.user_mention()}, I'm getting the discovery protocol information for {device_name}!"
-    )
+        return prompt_for_device(dispatcher, f"meraki get-neighbors '{org_name}'", org_name)
     neighbor_list = get_meraki_device_lldpcdp(org_name, device_name)
-    if len(neighbor_list) > 0:
-        table_data = []
-        for key, vals in neighbor_list["ports"].items():
-            for dp_type, dp_vals in vals.items():
-                if dp_type == "cdp":
-                    print("inside cdp")
-                    table_data.append(
-                        (key, dp_type, dp_vals.get("deviceId"), dp_vals.get("portId"), dp_vals.get("address"))
-                    )
-                elif dp_type == "lldp":
-                    print("inside lldp")
-                    print(dp_vals)
-                    table_data.append(
-                        (
-                            key,
-                            dp_type,
-                            dp_vals.get("systemName"),
-                            dp_vals.get("portId"),
-                            dp_vals.get("managementAddress"),
-                        )
-                    )
-                else:
-                    print(dp_type)
-        dispatcher.send_large_table(
-            ["Local Port", "Type", "Remote Device", "Remote Port", "Remote Address"],
-            table_data,
+    if len(neighbor_list) == 0:
+        dispatcher.send_markdown(f"NO LLDP/CDP neighbors for {device_name}!")
+        return (
+            CommandStatusChoices.STATUS_SUCCEEDED,
+            f"NO LLDP/CDP neighbors for {device_name}!",
         )
-    else:
-        dispatcher.send_markdown(f"{dispatcher.user_mention()}, NO LLDP/CDP neighbors for {device_name}!")
+    table_data = []
+    for key, vals in neighbor_list["ports"].items():
+        for dp_type, dp_vals in vals.items():
+            if dp_type == "cdp":
+                table_data.append(
+                    (key, dp_type, dp_vals.get("deviceId"), dp_vals.get("portId"), dp_vals.get("address"))
+                )
+            elif dp_type == "lldp":
+                table_data.append(
+                    (
+                        key,
+                        dp_type,
+                        dp_vals.get("systemName"),
+                        dp_vals.get("portId"),
+                        dp_vals.get("managementAddress"),
+                    )
+                )
+            else:
+                LOGGER.debug(dp_type)
+    blocks = [
+        *dispatcher.command_response_header(
+            "meraki",
+            "get-get-neighbors",
+            [("Org Name", org_name), ("Device Name", device_name)],
+            "Get LLDP/CDP Neighbors",
+            meraki_logo(dispatcher),
+        ),
+    ]
+    dispatcher.send_blocks(blocks)
+    dispatcher.send_large_table(
+        ["Local Port", "Type", "Remote Device", "Remote Port", "Remote Address"],
+        table_data,
+    )
     return CommandStatusChoices.STATUS_SUCCEEDED
 
 
@@ -428,12 +544,6 @@ def configure_basic_access_port(  # pylint: disable=too-many-arguments
             dispatcher, f"meraki configure-basic-access-port {org_name} {device_name}", org_name, device_name
         )
     if not (enabled and vlan and port_desc):
-        if not enabled:
-            dispatcher.send_warning("Enable state must be specified")
-        if not vlan:
-            dispatcher.send_warning("A VLAN must be specified")
-        if not port_desc:
-            dispatcher.send_warning("A Port Description must be specified")
         dialog_list = [
             {
                 "type": "select",
@@ -453,15 +563,46 @@ def configure_basic_access_port(  # pylint: disable=too-many-arguments
         return False
     port_params = dict(name=port_desc, enabled=bool(enabled), type="access", vlan=vlan)
     LOGGER.info("PORT PARMS: %s", port_params)
-    dispatcher.send_markdown(
-        f"Stand by {dispatcher.user_mention()}, I'm configuring port {port_number} on {device_name}!"
-    )
     result = update_meraki_switch_port(org_name, device_name, port_number, **port_params)
     blocks = [
-        dispatcher.markdown_block(
-            f"{dispatcher.user_mention()} The port has been configured, here is the current configuration."
+        *dispatcher.command_response_header(
+            "meraki",
+            "configure-basic-access-port",
+            [
+                ("Org Name", org_name),
+                ("Device Name", device_name),
+                ("Port ID", port_number),
+            ],
+            "Configured Port",
+            meraki_logo(dispatcher),
         ),
-        dispatcher.markdown_block("\n".join([f"{key}: {value}" for key, value in result.items()])),
+    ]
+    dispatcher.send_blocks(blocks)
+    dispatcher.send_large_table(list(result.keys()), [tuple(result.values())])
+    return CommandStatusChoices.STATUS_SUCCEEDED
+
+
+@subcommand_of("meraki")
+def cycle_port(dispatcher, org_name=None, device_name=None, port_number=None):
+    """Cycle a port on a switch."""
+    LOGGER.info("ORG NAME: %s", org_name)
+    if not org_name:
+        return prompt_for_organization(dispatcher, "meraki cycle-port")
+    if not device_name:
+        return prompt_for_device(dispatcher, f"meraki cycle-port {org_name}", org_name, dev_type="switches")
+    if not port_number:
+        return prompt_for_port(dispatcher, f"meraki cycle-port {org_name} {device_name}", org_name, device_name)
+
+    cycled_port = port_cycle(org_name, device_name, port_number)
+    blocks = [
+        *dispatcher.command_response_header(
+            "meraki",
+            "cycle-port",
+            [("Org Name", org_name), ("Device Name", device_name), ("Port", port_number)],
+            "cycled port",
+            meraki_logo(dispatcher),
+        ),
+        dispatcher.markdown_block(f"Port {cycled_port['ports'][0]} cycled successfully!"),
     ]
     dispatcher.send_blocks(blocks)
     return CommandStatusChoices.STATUS_SUCCEEDED

@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "nautobot-plugin-chatops-meraki"
-version = "0.1.0"
-description = "Nautobot Plugin Chatops Meraki"
+name = "nautobot-chatops-meraki"
+version = "1.0.0"
+description = "Nautobot Chatops Meraki"
 authors = ["Network to Code, LLC <info@networktocode.com>"]
 license = "Apache-2.0"
 readme = "README.md"
