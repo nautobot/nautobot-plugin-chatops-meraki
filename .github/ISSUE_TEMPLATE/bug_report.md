@@ -7,7 +7,7 @@ about: Report a reproducible bug in the current release of nautobot-plugin-chato
 * Python version:  <!-- Example: 3.7.7 -->
 * Nautobot version:  <!-- Example: 1.0.1 -->
 * Nautobot Chatops Plugin version:  <!-- Example: 1.3.0 -->
-* nautobot-plugin-chatops-meraki version:  <!-- Example: 0.1.0 -->
+* nautobot-plugin-chatops-meraki version:  <!-- Example: 1.0.0 -->
 
 <!-- What did you expect to happen? -->
 ### Expected Behavior
