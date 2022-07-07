@@ -1,8 +1,7 @@
 """Plugin declaration for nautobot_plugin_chatops_meraki."""
-
-__version__ = "1.0.0"
-
 from nautobot.extras.plugins import PluginConfig
+
+__version__ = "1.1.0"
 
 
 class NautobotPluginChatopsMerakiConfig(PluginConfig):
@@ -14,7 +13,7 @@ class NautobotPluginChatopsMerakiConfig(PluginConfig):
     author = "Network to Code, LLC"
     description = "Nautobot Plugin Chatops Meraki."
     required_settings = []
-    min_version = "1.0.1"
+    min_version = "1.1.0"
     max_version = "1.9999"
     default_settings = {}
     caching_config = {}
