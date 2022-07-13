@@ -22,7 +22,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.7"
 nautobot-chatops = "^1.1.0"
-typing-extensions = "^4.1.0"
+# typing-extensions = "^4.1.0"
 meraki = "^1.7.2"
 
 [tool.poetry.dev-dependencies]
