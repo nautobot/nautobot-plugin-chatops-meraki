@@ -26,7 +26,8 @@ meraki = "^1.7.2"
 
 [tool.poetry.dev-dependencies]
 invoke = "*"
-black = "*"
+# Pinning black to avoid dependency conflicts.
+black = "^21.10b0"
 django-debug-toolbar = "*"
 yamllint = "*"
 bandit = "*"
