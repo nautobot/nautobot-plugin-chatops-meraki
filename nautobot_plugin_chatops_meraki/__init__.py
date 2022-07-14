@@ -1,4 +1,5 @@
 """Plugin declaration for nautobot_plugin_chatops_meraki."""
+# Metadata is inherited from Nautobot. If not including Nautobot in the environment, this should be added
 from nautobot.extras.plugins import PluginConfig
 
 __version__ = "1.1.0"
@@ -13,7 +14,7 @@ class NautobotPluginChatopsMerakiConfig(PluginConfig):
     author = "Network to Code, LLC"
     description = "Nautobot Plugin Chatops Meraki."
     required_settings = []
-    min_version = "1.1.0"
+    min_version = "1.2.3"
     max_version = "1.9999"
     default_settings = {}
     caching_config = {}

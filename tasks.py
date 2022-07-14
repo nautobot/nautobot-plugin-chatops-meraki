@@ -40,7 +40,7 @@ namespace = Collection("nautobot_plugin_chatops_meraki")
 namespace.configure(
     {
         "nautobot_plugin_chatops_meraki": {
-            "nautobot_ver": "1.3.5",
+            "nautobot_ver": "1.3.8",
             "project_name": "nautobot_plugin_chatops_meraki",
             "python_ver": "3.7",
             "local": False,
