@@ -40,7 +40,7 @@ namespace = Collection("nautobot_plugin_chatops_meraki")
 namespace.configure(
     {
         "nautobot_plugin_chatops_meraki": {
-            "nautobot_ver": "latest",
+            "nautobot_ver": "1.3.5",
             "project_name": "nautobot_plugin_chatops_meraki",
             "python_ver": "3.7",
             "local": False,
@@ -275,7 +275,7 @@ def black(context, autoformat=False):
 @task
 def flake8(context):
     """Check for PEP8 compliance and other style issues."""
-    command = "flake8 . --config .flake8"
+    command = "flake8 ."
     run_command(context, command)
 
 
