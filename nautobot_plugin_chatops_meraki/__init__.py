@@ -14,7 +14,7 @@ class NautobotPluginChatopsMerakiConfig(PluginConfig):
     author = "Network to Code, LLC"
     description = "Nautobot Plugin Chatops Meraki."
     required_settings = []
-    min_version = "1.2.3"
+    min_version = "1.3.0"
     max_version = "1.9999"
     default_settings = {}
     caching_config = {}
