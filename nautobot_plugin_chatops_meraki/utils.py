@@ -23,7 +23,6 @@ class MerakiClient:
             net["id"] for net in self.get_meraki_networks_by_org(org_name) if net["name"].lower() == net_name.lower()
         ][0]
 
-
     def get_meraki_orgs(self):
         """Query the Meraki Dashboard API for a list of defined organizations."""
         return self.dashboard.organizations.getOrganizations()
