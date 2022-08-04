@@ -20,7 +20,7 @@ class TestUtils(unittest.TestCase):
             }
         ]
         client = MerakiClient(api_key="1234567890")
-        assert client._org_name_to_id("NTC-TEST") == "123456"
+        assert client.org_name_to_id("NTC-TEST") == "123456"
 
     @patch("nautobot_plugin_chatops_meraki.utils.get_meraki_devices")
     def test_name_to_serial(self, mock_devices):  # pylint: disable=no-self-use
@@ -42,7 +42,7 @@ class TestUtils(unittest.TestCase):
             },
         ]
         client = MerakiClient(api_key="1234567890")
-        assert client._name_to_serial("NTC-TEST", "fw01-test") == "SN123456"
+        assert client.name_to_serial("NTC-TEST", "fw01-test") == "SN123456"
 
     @patch("nautobot_plugin_chatops_meraki.utils.get_meraki_networks_by_org")
     def test_netname_to_id(self, mock_net_name):  # pylint: disable=no-self-use
@@ -73,4 +73,4 @@ class TestUtils(unittest.TestCase):
             },
         ]
         client = MerakiClient(api_key="1234567890")
-        assert client._netname_to_id("NTC-TEST", "test-network-name") == "L_987654321"
+        assert client.netname_to_id("NTC-TEST", "test-network-name") == "L_987654321"
