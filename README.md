@@ -98,12 +98,24 @@ PLUGINS_CONFIG = {
   }
 }
 ```
-> Note: There is currently no specific configuration needed for this plugin.  The only thing that is needed is below.
 
-The plugin requires the use of a environment variable.  See below.
+To connect to the Meraki Dashboard API, you need to define Meraki Dashboard API key.
+See [Meraki Dashboard API Documentation](https://documentation.meraki.com/
+General_Administration/Other_Topics/Cisco_Meraki_Dashboard_API).
 
-- `MERAKI_DASHBOARD_API_KEY`: Is set to the dashboard API key. See [Meraki Dashboard API Documentation](https://documentation.meraki.com/General_Administration/Other_Topics/Cisco_Meraki_Dashboard_API).
+There are two options to define the API key.
 
+The first option is to define the API key in the `nautobot_config.py`:
+```python
+PLUGINS_CONFIG = {
+    "nautobot_plugin_chatops_meraki": {
+        "meraki_dashboard_api_key": <API KEY>
+    },
+```
+> Note: You would probably want to read the API key from the env variable like this: `os.environ.get("MERAKI_API_KEY")`
+
+The alternative option is to set the environmental variable:
+- `MERAKI_DASHBOARD_API_KEY`: Is set to the dashboard API key.
 Add this variable and its value in the `creds.env` file.
 
 ## Contributing

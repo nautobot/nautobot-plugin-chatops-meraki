@@ -1,25 +1,13 @@
 """Demo meraki addition to Nautobot."""
 import logging
 
+from django.conf import settings
 from django_rq import job
 from nautobot_chatops.workers import subcommand_of, handle_subcommands
 from nautobot_chatops.choices import CommandStatusChoices
 
-from .utils import (
-    get_meraki_orgs,
-    get_meraki_org_admins,
-    get_meraki_devices,
-    get_meraki_networks_by_org,
-    get_meraki_switchports,
-    get_meraki_switchports_status,
-    get_meraki_firewall_performance,
-    get_meraki_network_ssids,
-    get_meraki_camera_recent,
-    get_meraki_device_clients,
-    get_meraki_device_lldpcdp,
-    update_meraki_switch_port,
-    port_cycle,
-)
+from .utils import MerakiClient
+
 
 MERAKI_LOGO_PATH = "nautobot_meraki/meraki.png"
 MERAKI_LOGO_ALT = "Meraki Logo"
@@ -35,6 +23,7 @@ DEVICE_TYPES = [
     ("switches", "switches"),
 ]
 
+MERAKI_DASHBOARD_API_KEY = settings.PLUGINS_CONFIG["nautobot_plugin_chatops_meraki"]["meraki_dashboard_api_key"]
 
 def meraki_logo(dispatcher):
     """Construct an image_element containing the locally hosted Meraki logo."""
@@ -43,27 +32,30 @@ def meraki_logo(dispatcher):
 
 def prompt_for_organization(dispatcher, command):
     """Prompt the user to select a Meraki Organization."""
-    org_list = get_meraki_orgs()
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
+    org_list = client.get_meraki_orgs()
     dispatcher.prompt_from_menu(command, "Select an Organization", [(org["name"], org["name"]) for org in org_list])
     return False
 
 
 def prompt_for_device(dispatcher, command, org, dev_type=None):
     """Prompt the user to select a Meraki device."""
-    dev_list = get_meraki_devices(org)
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
+    dev_list = client.get_meraki_devices(org)
     if not dev_type:
         dispatcher.prompt_from_menu(
             command, "Select a Device", [(dev["name"], dev["name"]) for dev in dev_list if len(dev["name"]) > 0]
         )
         return False
-    dev_list = parse_device_list(dev_type, get_meraki_devices(org))
+    dev_list = parse_device_list(dev_type, client.get_meraki_devices(org))
     dispatcher.prompt_from_menu(command, "Select a Device", [(dev, dev) for dev in dev_list])
     return False
 
 
 def prompt_for_network(dispatcher, command, org):
     """Prompt the user to select a Network name."""
-    net_list = get_meraki_networks_by_org(org)
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
+    net_list = client.get_meraki_networks_by_org(org)
     dispatcher.prompt_from_menu(
         command, "Select a Network", [(net["name"], net["name"]) for net in net_list if len(net["name"]) > 0]
     )
@@ -72,7 +64,8 @@ def prompt_for_network(dispatcher, command, org):
 
 def prompt_for_port(dispatcher, command, org, switch_name):
     """Prompt the user to select a port from a switch."""
-    ports = get_meraki_switchports(org, switch_name)
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
+    ports = client.get_meraki_switchports(org, switch_name)
     dispatcher.prompt_from_menu(command, "Select a Port", [(port["portId"], port["portId"]) for port in ports])
     return False
 
@@ -95,11 +88,11 @@ def cisco_meraki(subcommand, **kwargs):
     """Interact with Meraki."""
     return handle_subcommands("meraki", subcommand, **kwargs)
 
-
 @subcommand_of("meraki")
 def get_organizations(dispatcher):
     """Gather all the Meraki Organizations."""
-    org_list = get_meraki_orgs()
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
+    org_list = client.get_meraki_orgs()
     if len(org_list) == 0:
         dispatcher.send_markdown("NO Meraki Orgs!")
         return (
@@ -126,7 +119,8 @@ def get_admins(dispatcher, org_name=None):
     LOGGER.info("ORG NAME: %s", org_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-admins")
-    admins = get_meraki_org_admins(org_name)
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
+    admins = client.get_meraki_org_admins(org_name)
     if len(admins) == 0:
         dispatcher.send_markdown(f"NO Meraki Admins for {org_name}!")
         return (
@@ -158,7 +152,8 @@ def get_devices(dispatcher, org_name=None, device_type=None):
         dispatcher.prompt_from_menu(f"meraki get-devices '{org_name}'", "Select a Device Type", DEVICE_TYPES)
         return False
     LOGGER.info("Translated Device Type: %s", device_type)
-    devices = get_meraki_devices(org_name)
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
+    devices = client.get_meraki_devices(org_name)
     devices_result = parse_device_list(device_type, devices)
     if len(devices_result) == 0:
         dispatcher.send_markdown("There are NO devices that meet the requirements!")
@@ -186,7 +181,8 @@ def get_networks(dispatcher, org_name=None):
     LOGGER.info("ORG NAME: %s", org_name)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-networks")
-    networks = get_meraki_networks_by_org(org_name)
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
+    networks = client.get_meraki_networks_by_org(org_name)
     if len(networks) == 0:
         dispatcher.send_markdown(f"NO Networks in {org_name}!")
         return (
@@ -216,7 +212,8 @@ def get_switchports(dispatcher, org_name=None, device_name=None):
         return prompt_for_organization(dispatcher, "meraki get-switchports")
     if not device_name:
         return prompt_for_device(dispatcher, f"meraki get-switchports {org_name}", org_name, dev_type="switches")
-    ports = get_meraki_switchports(org_name, device_name)
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
+    ports = client.get_meraki_switchports(org_name, device_name)
     blocks = [
         *dispatcher.command_response_header(
             "meraki",
@@ -278,7 +275,8 @@ def get_switchports_status(dispatcher, org_name=None, device_name=None):
         return prompt_for_organization(dispatcher, "meraki get-switchports-status")
     if not device_name:
         return prompt_for_device(dispatcher, f"meraki get-switchports-status {org_name}", org_name, dev_type="switches")
-    ports = get_meraki_switchports_status(org_name, device_name)
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
+    ports = client.get_meraki_switchports_status(org_name, device_name)
     blocks = [
         *dispatcher.command_response_header(
             "meraki",
@@ -326,10 +324,11 @@ def get_firewall_performance(dispatcher, org_name=None, device_name=None):
     """Query Meraki with a firewall to device performance."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE NAME: %s", device_name)
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-firewall-performance")
     if not device_name:
-        devices = get_meraki_devices(org_name)
+        devices = client.get_meraki_devices(org_name)
         fws = parse_device_list("firewalls", devices)
         if len(fws) == 0:
             dispatcher.send_markdown("There are NO Firewalls in this Meraki Org!")
@@ -340,7 +339,7 @@ def get_firewall_performance(dispatcher, org_name=None, device_name=None):
         return prompt_for_device(
             dispatcher, f"meraki get-firewall-performance {org_name}", org_name, dev_type="firewalls"
         )
-    fw_perfomance = get_meraki_firewall_performance(org_name, device_name)
+    fw_perfomance = client.get_meraki_firewall_performance(org_name, device_name)
     blocks = [
         *dispatcher.command_response_header(
             "meraki",
@@ -364,7 +363,8 @@ def get_wlan_ssids(dispatcher, org_name=None, net_name=None):
         return prompt_for_organization(dispatcher, "meraki get-wlan-ssids")
     if not net_name:
         return prompt_for_network(dispatcher, f"meraki get-wlan-ssids {org_name}", org_name)
-    ssids = get_meraki_network_ssids(org_name, net_name)
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
+    ssids = client.get_meraki_network_ssids(org_name, net_name)
     blocks = [
         *dispatcher.command_response_header(
             "meraki",
@@ -387,10 +387,11 @@ def get_camera_recent(dispatcher, org_name=None, device_name=None):
     """Query Meraki Recent Camera Analytics."""
     LOGGER.info("ORG NAME: %s", org_name)
     LOGGER.info("DEVICE NAME: %s", device_name)
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
     if not org_name:
         return prompt_for_organization(dispatcher, "meraki get-camera-recent")
     if not device_name:
-        devices = get_meraki_devices(org_name)
+        devices = client.get_meraki_devices(org_name)
         cams = parse_device_list("cameras", devices)
         if len(cams) == 0:
             dispatcher.send_markdown("There are NO Cameras in this Meraki Org!")
@@ -399,7 +400,7 @@ def get_camera_recent(dispatcher, org_name=None, device_name=None):
                 "There are NO Cameras in this Meraki Org!",
             )
         return prompt_for_device(dispatcher, f"meraki get-camera-recent '{org_name}'", org_name, dev_type="cameras")
-    camera_stats = get_meraki_camera_recent(org_name, device_name)
+    camera_stats = client.get_meraki_camera_recent(org_name, device_name)
     if len(camera_stats) == 0:
         return (
             CommandStatusChoices.STATUS_SUCCEEDED,
@@ -440,7 +441,8 @@ def get_clients(dispatcher, org_name=None, device_name=None):
         return prompt_for_organization(dispatcher, "meraki get-clients")
     if not device_name:
         return prompt_for_device(dispatcher, f"meraki get-clients '{org_name}'", org_name)
-    client_list = get_meraki_device_clients(org_name, device_name)
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
+    client_list = client.get_meraki_device_clients(org_name, device_name)
     if len(client_list) == 0:
         dispatcher.send_markdown(f"There are NO Clients on {device_name}!")
         return (
@@ -485,7 +487,8 @@ def get_neighbors(dispatcher, org_name=None, device_name=None):
         return prompt_for_organization(dispatcher, "meraki get-neighbors")
     if not device_name:
         return prompt_for_device(dispatcher, f"meraki get-neighbors '{org_name}'", org_name)
-    neighbor_list = get_meraki_device_lldpcdp(org_name, device_name)
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
+    neighbor_list = client.get_meraki_device_lldpcdp(org_name, device_name)
     if len(neighbor_list) == 0:
         dispatcher.send_markdown(f"NO LLDP/CDP neighbors for {device_name}!")
         return (
@@ -563,7 +566,8 @@ def configure_basic_access_port(  # pylint: disable=too-many-arguments
         return False
     port_params = dict(name=port_desc, enabled=bool(enabled), type="access", vlan=vlan)
     LOGGER.info("PORT PARMS: %s", port_params)
-    result = update_meraki_switch_port(org_name, device_name, port_number, **port_params)
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
+    result = client.update_meraki_switch_port(org_name, device_name, port_number, **port_params)
     blocks = [
         *dispatcher.command_response_header(
             "meraki",
@@ -593,7 +597,8 @@ def cycle_port(dispatcher, org_name=None, device_name=None, port_number=None):
     if not port_number:
         return prompt_for_port(dispatcher, f"meraki cycle-port {org_name} {device_name}", org_name, device_name)
 
-    cycled_port = port_cycle(org_name, device_name, port_number)
+    client = MerakiClient(api_key=MERAKI_DASHBOARD_API_KEY)
+    cycled_port = client.port_cycle(org_name, device_name, port_number)
     blocks = [
         *dispatcher.command_response_header(
             "meraki",

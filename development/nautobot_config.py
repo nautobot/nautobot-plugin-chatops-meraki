@@ -134,6 +134,10 @@ ALLOWED_URL_SCHEMES = (
     "xmpp",
 )
 
+#### Celery settings
+CELERY_BROKER_URL = f"{REDIS_SCHEME}://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0"
+CELERY_RESULT_BACKEND=CELERY_BROKER_URL
+
 # Optionally display a persistent banner at the top and/or bottom of every page. HTML is allowed. To display the same
 # content in both banners, define BANNER_TOP and set BANNER_BOTTOM = BANNER_TOP.
 BANNER_TOP = os.environ.get("BANNER_TOP", "")
@@ -254,9 +258,9 @@ PLUGINS = [
 # Each key in the dictionary is the name of an installed plugin and its value is a dictionary of settings.
 PLUGINS_CONFIG = {
     "nautobot_chatops": {
-        "enable_slack": os.environ.get("ENABLE_SLACK", False),
-        "slack_api_token": os.environ.get("SLACK_API_TOKEN"),
-        "slack_signing_secret": os.environ.get("SLACK_SIGNING_SECRET"),
+        "enable_slack": True,
+        "slack_api_token": "xoxb-2307120380918-2337603025024-YGRhnCkFoTe79vlTxrbBC1zH",
+        "slack_signing_secret": "841ef9bf5203562c8621fd8f8f077227",
         "slack_slash_command_prefix": os.environ.get("SLACK_SLASH_COMMAND_PREFIX", "/"),
         "enable_webex": os.environ.get("ENABLE_WEBEX", False),
         "webex_token": os.environ.get("WEBEX_TOKEN"),
@@ -268,7 +272,9 @@ PLUGINS_CONFIG = {
         "microsoft_app_id": os.environ.get("MICROSOFT_APP_ID"),
         "microsoft_app_password": os.environ.get("MICROSOFT_APP_PASSWORD"),
     },
-    # "nautobot_plugin_chatops_meraki": {"foo": "bar"},  # Example variable
+    "nautobot_plugin_chatops_meraki": {
+        "meraki_dashboard_api_key": os.environ.get("MERAKI_API_KEY")
+    },
 }
 
 # When determining the primary IP address for a device, IPv6 is preferred over IPv4 by default. Set this to True to
