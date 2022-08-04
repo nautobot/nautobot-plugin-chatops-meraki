@@ -4,7 +4,9 @@ import meraki
 
 
 class MerakiClient:
+    """Meraki client class."""
     def __init__(self, api_key=None):
+        """Class constructor."""
         self.dashboard = meraki.DashboardAPI(suppress_logging=True, api_key=api_key)
 
     def _org_name_to_id(self, org_name):
