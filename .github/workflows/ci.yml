@@ -5,7 +5,7 @@ on:  # yamllint disable
   - "pull_request"
 
 env:
-  PLUGIN_NAME: "nautobot-chatops-meraki"
+  PLUGIN_NAME: "nautobot-plugin-chatops-meraki"
 
 jobs:
   black:
