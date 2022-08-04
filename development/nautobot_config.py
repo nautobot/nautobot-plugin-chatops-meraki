@@ -258,9 +258,9 @@ PLUGINS = [
 # Each key in the dictionary is the name of an installed plugin and its value is a dictionary of settings.
 PLUGINS_CONFIG = {
     "nautobot_chatops": {
-        "enable_slack": True,
-        "slack_api_token": "xoxb-2307120380918-2337603025024-YGRhnCkFoTe79vlTxrbBC1zH",
-        "slack_signing_secret": "841ef9bf5203562c8621fd8f8f077227",
+        "enable_slack": os.environ.get("ENABLE_SLACK", False),
+        "slack_api_token": os.environ.get("SLACK_API_TOKEN"),
+        "slack_signing_secret": os.environ.get("SLACK_SIGNING_SECRET"),
         "slack_slash_command_prefix": os.environ.get("SLACK_SLASH_COMMAND_PREFIX", "/"),
         "enable_webex": os.environ.get("ENABLE_WEBEX", False),
         "webex_token": os.environ.get("WEBEX_TOKEN"),
