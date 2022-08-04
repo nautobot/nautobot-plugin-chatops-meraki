@@ -25,6 +25,7 @@ DEVICE_TYPES = [
 
 MERAKI_DASHBOARD_API_KEY = settings.PLUGINS_CONFIG["nautobot_plugin_chatops_meraki"]["meraki_dashboard_api_key"]
 
+
 def meraki_logo(dispatcher):
     """Construct an image_element containing the locally hosted Meraki logo."""
     return dispatcher.image_element(dispatcher.static_url(MERAKI_LOGO_PATH), alt_text=MERAKI_LOGO_ALT)
@@ -87,6 +88,7 @@ def parse_device_list(dev_type, devs):
 def cisco_meraki(subcommand, **kwargs):
     """Interact with Meraki."""
     return handle_subcommands("meraki", subcommand, **kwargs)
+
 
 @subcommand_of("meraki")
 def get_organizations(dispatcher):
