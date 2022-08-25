@@ -2,7 +2,7 @@
 # Metadata is inherited from Nautobot. If not including Nautobot in the environment, this should be added
 from nautobot.extras.plugins import PluginConfig
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 
 class NautobotPluginChatopsMerakiConfig(PluginConfig):

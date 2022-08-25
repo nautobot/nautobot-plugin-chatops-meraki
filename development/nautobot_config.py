@@ -134,6 +134,10 @@ ALLOWED_URL_SCHEMES = (
     "xmpp",
 )
 
+# Celery settings
+CELERY_BROKER_URL = f"{REDIS_SCHEME}://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0"
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+
 # Optionally display a persistent banner at the top and/or bottom of every page. HTML is allowed. To display the same
 # content in both banners, define BANNER_TOP and set BANNER_BOTTOM = BANNER_TOP.
 BANNER_TOP = os.environ.get("BANNER_TOP", "")
@@ -268,7 +272,7 @@ PLUGINS_CONFIG = {
         "microsoft_app_id": os.environ.get("MICROSOFT_APP_ID"),
         "microsoft_app_password": os.environ.get("MICROSOFT_APP_PASSWORD"),
     },
-    # "nautobot_plugin_chatops_meraki": {"foo": "bar"},  # Example variable
+    "nautobot_plugin_chatops_meraki": {"meraki_dashboard_api_key": os.environ.get("MERAKI_API_KEY")},
 }
 
 # When determining the primary IP address for a device, IPv6 is preferred over IPv4 by default. Set this to True to

@@ -1,3 +1,11 @@
+## v1.2.0 - 2022-08-24
+
+### Added
+- Add an option to read the Meraki API key from settings by @ubajze in https://github.com/nautobot/nautobot-plugin-chatops-meraki/pull/25
+
+### Changed
+- CI Update by @ubajze in https://github.com/nautobot/nautobot-plugin-chatops-meraki/pull/27
+
 ## v1.1.0 - 2021-09-28
 
 ### Changed
