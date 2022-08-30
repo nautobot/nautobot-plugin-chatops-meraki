@@ -100,8 +100,7 @@ PLUGINS_CONFIG = {
 ```
 
 To connect to the Meraki Dashboard API, you need to define Meraki Dashboard API key.
-See [Meraki Dashboard API Documentation](https://documentation.meraki.com/
-General_Administration/Other_Topics/Cisco_Meraki_Dashboard_API).
+See [Meraki Dashboard API Documentation](https://documentation.meraki.com/General_Administration/Other_Topics/Cisco_Meraki_Dashboard_API).
 
 There are two options to define the API key.
 
@@ -116,7 +115,9 @@ PLUGINS_CONFIG = {
 
 The alternative option is to set the environmental variable:
 - `MERAKI_DASHBOARD_API_KEY`: Is set to the dashboard API key.
-Add this variable and its value in the `creds.env` file.
+
+For the local development and testing add this variable and its value in the `creds.env` file.
+If both options are used, the plugin will read the key from the settings.
 
 ## Contributing
 
