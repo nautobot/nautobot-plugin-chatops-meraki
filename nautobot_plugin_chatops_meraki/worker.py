@@ -29,7 +29,7 @@ try:
 except KeyError as err:
     MERAKI_DASHBOARD_API_KEY = os.getenv("MERAKI_DASHBOARD_API_KEY")
     if not MERAKI_DASHBOARD_API_KEY:
-        raise Exception("Unable to find the Meraki API key.") from e
+        raise Exception("Unable to find the Meraki API key.") from err
 
 
 def meraki_logo(dispatcher):
