@@ -1,4 +1,5 @@
 """Demo meraki addition to Nautobot."""
+import os
 import logging
 
 from django.conf import settings
@@ -23,7 +24,12 @@ DEVICE_TYPES = [
     ("switches", "switches"),
 ]
 
-MERAKI_DASHBOARD_API_KEY = settings.PLUGINS_CONFIG["nautobot_plugin_chatops_meraki"]["meraki_dashboard_api_key"]
+try:
+    MERAKI_DASHBOARD_API_KEY = settings.PLUGINS_CONFIG["nautobot_plugin_chatops_meraki"]["meraki_dashboard_api_key"]
+except KeyError as err:
+    MERAKI_DASHBOARD_API_KEY = os.getenv("MERAKI_DASHBOARD_API_KEY")
+    if not MERAKI_DASHBOARD_API_KEY:
+        raise Exception("Unable to find the Meraki API key.") from err
 
 
 def meraki_logo(dispatcher):
