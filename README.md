@@ -1,3 +1,5 @@
+# The code in this repository has been migrated to the [Nautobot ChatOps Repository](https://github.com/nautobot/nautobot-plugin-chatops) as an integration - read more about it in the [ChatOps Docs](https://docs.nautobot.com/projects/chatops/en/latest/admin/install/)! As of July 2023 this repository has been **FROZEN** - all development / issues / discussions for this integration are in the [Nautobot ChatOps Repository](https://github.com/nautobot/nautobot-plugin-chatops) going forward.
+
 # Cisco Meraki ChatOps
 
 Using the [Nautobot ChatOps](https://github.com/nautobot/nautobot-plugin-chatops/) base framework, this Nautobot app (plugin) adds the ability to gather data as well as make basic changes communicating directly with the Meraki portal using Slack, Webex Teams, MS Teams, and Mattermost changing the way IT organizations support their Meraki infrastructure.
